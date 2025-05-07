@@ -1,6 +1,6 @@
 import re
 from typing import List
-from instagram.services import InstagamService
+from instagram.services import InstagramService
 from youtube.services import YoutubeService
 from sqlmodel.ext.asyncio.session import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException, Body
@@ -12,7 +12,7 @@ from .media_service import MediaService
 router = APIRouter(prefix="/api", tags=["download"])
 
 URL_SERVICE_MAP = {
-    r"(?:^|\.)instagram\.com$": InstagamService,
+    r"(?:^|\.)instagram\.com$": InstagramService,
     r"(?:^|\.)youtube\.com$": YoutubeService
 }
 

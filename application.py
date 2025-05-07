@@ -9,7 +9,7 @@ async def lifespan(app: FastAPI):
     await init_db()
     yield
 
-app = FastAPI(title="Starbook", lifespan=lifespan)
+app = FastAPI(title="StorageBucket", lifespan=lifespan)
 app.include_router(core_router)
 app.include_router(insta_router)
 

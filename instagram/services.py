@@ -5,12 +5,14 @@ from fastapi import HTTPException
 from sqlalchemy.orm import selectinload
 from .models import Profile
 from core.models import Media, Url
+from core.platform_service import PlatformService
 from downloader.instagram_downloader import InstagramDownloader
 from downloader.base import DownloadResult, FileInfo
 
-class InstagamService:
+class InstagramService:
     def __init__(self):
         self.downloader = InstagramDownloader()
+        self.platform_service = PlatformService()
 
     async def download_and_save(
         self, url: str, session: AsyncSession
@@ -28,7 +30,7 @@ class InstagamService:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Instagram 다운로드 실패: {e}")
         
-        platform = result["platform"].value
+        platform_name = result["platform"].value
         files: list[FileInfo] = result["files"]
         metadata = result.get("metadata", {})
 
@@ -49,6 +51,8 @@ class InstagamService:
         elif owner_name and profile.owner_name != owner_name:
             profile.owner_name = owner_name
             session.add(profile)
+
+        platform = await self.platform_service.get_or_create(platform_name)
         
         is_new_url = False
         if url_obj is None:
@@ -63,7 +67,7 @@ class InstagamService:
                 title = caption if caption else f_info["filename"]
 
                 media = Media(
-                    platform=platform,
+                    platform_id=platform.id,
                     filepath=f_info["filepath"],
                     filename=f_info["filename"],
                     title=title,

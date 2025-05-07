@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file = ".env", env_file_encoding="utf-8", extra="ignore")
 
     database_type: Literal["sqlite", "postgresql"] = "sqlite"
-    database_name: str = "book.db"
+    database_name: str = "bucket.db"
 
     database_user: str | None = None
     database_password: str | None = None

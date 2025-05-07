@@ -1,5 +1,6 @@
 from core.models import Url, Media
 from core.utils import now_kst
+from core.platform_service import PlatformService
 from downloader.youtube_downloader import YoutubeDownloader
 from downloader.base import DownloadResult
 from fastapi import HTTPException
@@ -9,6 +10,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 class YoutubeService:
     def __init__(self):
         self.downloader = YoutubeDownloader()
+        self.platform_service = PlatformService()
 
     
     async def download_and_save(self, url: str, session: AsyncSession) -> DownloadResult:
@@ -25,6 +27,9 @@ class YoutubeService:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Youtube 다운로드 실패 {e}")
         
+
+        platform = await self.platform_service.get_or_create(result["platform"].value, session)
+        
         url_obj = Url(
             url=url,
         )
@@ -35,7 +40,7 @@ class YoutubeService:
         for file_info in result["files"]:
             media = Media(
                 url_id=url_obj.id,
-                platform=result["platform"].value,
+                platform_id=platform.id,
                 title=file_info["filename"],
                 filepath=file_info["filepath"],
                 created_at=now_kst()
