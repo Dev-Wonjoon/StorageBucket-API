@@ -4,7 +4,6 @@ from typing import TypedDict, NotRequired, Any, List, Dict
 from enum import Enum
 
 
-
 class FileInfo(TypedDict):
     filepath: str
     filename: str

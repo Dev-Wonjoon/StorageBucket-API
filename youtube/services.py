@@ -1,4 +1,4 @@
-from core.models import Url, Media
+from core.models import Url, Media, Thumbnail
 from core.utils import now_kst
 from core.platform_service import PlatformService
 from downloader.youtube_downloader import YoutubeDownloader
@@ -24,6 +24,7 @@ class YoutubeService:
         
         try:
             result = await self.downloader.download(url)
+            meta = result.get("metadata", {})
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Youtube 다운로드 실패 {e}")
         
@@ -37,15 +38,26 @@ class YoutubeService:
         session.add(url_obj)
         await session.flush()
 
+        thumbnail = None
+        thumbnail_filepath = meta.get("thumbnail_filepath")
+        thumbnail_filename = meta.get("thumbnail_filename")
+        if thumbnail_filename and thumbnail_filepath:
+            thumbnail = Thumbnail(filepath=thumbnail_filepath, filename=thumbnail_filename)
+            session.add(thumbnail)
+            await session.flush()
+
         for file_info in result["files"]:
             media = Media(
                 url_id=url_obj.id,
                 platform_id=platform.id,
+                thumbnail_id=thumbnail.id if thumbnail else None,
                 title=file_info["filename"],
                 filepath=file_info["filepath"],
                 created_at=now_kst()
             )
             session.add(media)
+        
+
         await session.commit()
         return result
     
