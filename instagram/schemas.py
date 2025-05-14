@@ -1,12 +1,12 @@
 from datetime import datetime
 from typing import List, Optional
 from sqlmodel import SQLModel
-from core.schemas import MediaSchema
+from core.models import Media
 
 class ProfileSchema(SQLModel):
     owner_id: int
     owner_name: str
-    medias: List[MediaSchema] = []
+    medias: List[Media] = []
 
     class Config:
         from_attributes = True

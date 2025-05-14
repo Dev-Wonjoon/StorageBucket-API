@@ -1,5 +1,5 @@
 from typing import List
-from .models import Platform
+from .models import Platform, Media
 from fastapi import HTTPException
 from sqlmodel.ext.asyncio.session import AsyncSession 
 from sqlmodel import select
@@ -18,11 +18,19 @@ class PlatformService:
         await session.refresh(platform)
         return platform
     
-    async def get_platform_by_name(self, name: str, session: AsyncSession) -> Platform:
-        platform = await session.scalar(select(Platform))
+    @staticmethod
+    async def get_platform_by_name(name: str, session: AsyncSession) -> Platform:
+        platform = await session.scalar(
+            select(Platform).where(Platform.name == name)
+        )
         if not platform:
             raise HTTPException(status_code=404, detail=f"플랫폼을 찾을 수 없습니다: {name}")
-        return platform
+        
+        result = await session.scalars(
+            select(Media).where(Media.platform_id == platform.id)
+        )
+
+        return result
     
     async def get_or_create(self, name: str, session: AsyncSession) -> Platform:
         try:
@@ -32,7 +40,7 @@ class PlatformService:
                 return await self.add_platform(name, session)
             raise
     
-    async def list_platform(self, session: AsyncSession) -> List[Platform]:
+    async def list_platform(session: AsyncSession) -> List[Platform]:
         result = await session.exec(select(Platform))
         return result.all()
     

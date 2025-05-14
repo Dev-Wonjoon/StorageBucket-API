@@ -1,3 +1,5 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Literal, List
 import os
@@ -31,3 +33,13 @@ class Settings(BaseSettings):
         os.getenv("YT_DIR"),
         os.getenv("IG_DIR"),
     }
+
+
+def configure_cors(app: FastAPI) -> None:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["http://localhost:5173"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )

@@ -1,13 +1,16 @@
 import re
-from typing import List
-from instagram.services import InstagramService
-from youtube.services import YoutubeService
+from typing import List, Optional
 from sqlmodel.ext.asyncio.session import AsyncSession
-from fastapi import APIRouter, Depends, HTTPException, Body
+from fastapi import APIRouter, HTTPException, Body, Depends, Query
 from urllib.parse import urlparse
 from .db import get_session
-from .models import Media
+from .models import Media, Platform
+
 from .media_service import MediaService
+from .platform_service import PlatformService
+
+from instagram.services import InstagramService
+from youtube.services import YoutubeService
 
 router = APIRouter(prefix="/api", tags=["download"])
 
@@ -34,6 +37,22 @@ async def download_url(
         detail=f"지원하지 않는 플랫폼입니다: {host}"
     )
 
-@router.get("/media", response_model=List[Media])
-async def get_media_list(session: AsyncSession = Depends(get_session)):
-    return await MediaService.list_media(session)
+@router.get("/media/list",response_model=List[Media],summary="Get paged media list")
+async def get_media(
+    cursor: Optional[int] = Query(None),
+    limit: int = Query(30, ge=1, le=100),
+    session: AsyncSession = Depends(get_session)
+):
+    return await MediaService.get_medialist_by_cursor(cursor, limit, session)
+
+
+@router.get("/platform/list", response_model=List[Platform])
+async def get_platform_list(session: AsyncSession = Depends(get_session)):
+    return await PlatformService.list_platform(session)
+
+
+@router.get("/platform/{platform_name}/list", response_model=List[Media])
+async def get_platform_name_list(platform_name: str, session: AsyncSession = Depends(get_session)):
+    return await PlatformService.get_platform_by_name(platform_name, session)
+
+

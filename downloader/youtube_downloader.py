@@ -55,8 +55,6 @@ class YoutubeDownloader(Downloader):
                 with open(thumbnail_filepath, "wb") as f:
                     f.write(content)
 
-        
-
         return DownloadResult({
             "platform": Platform.YOUTUBE,
             "files": [FileInfo(filename=filename, filepath=filepath)],

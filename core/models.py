@@ -3,7 +3,6 @@ from datetime import datetime
 from sqlmodel import SQLModel, Field, Relationship
 from pydantic import field_validator
 from .utils import now_kst
-from youtube.models import Youtube
 
 class MediaTag(SQLModel, table=True):
     __tablename__ = 'media_tag'
@@ -42,7 +41,7 @@ class Media(SQLModel, table=True):
     url_id: Optional[int] = Field(default=None, foreign_key="url.id", index=True, nullable=True)
     
     platform: Optional[Platform] = Relationship(back_populates="medias")
-    thumbnail: Optional["Thumbnail"] = Relationship(back_populates="thumbnail", sa_relationship_kwargs={"uselist": False})
+    thumbnail: Optional["Thumbnail"] = Relationship(back_populates="media", sa_relationship_kwargs={"uselist": False})
     url: Optional["Url"] = Relationship(back_populates="medias")
     profile: Optional["Profile"] = Relationship(back_populates="medias")
     tags: List["Tag"] = Relationship(back_populates="media", link_model=MediaTag)

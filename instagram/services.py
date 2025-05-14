@@ -52,7 +52,7 @@ class InstagramService:
             profile.owner_name = owner_name
             session.add(profile)
 
-        platform = await self.platform_service.get_or_create(platform_name)
+        platform = await self.platform_service.get_or_create(platform_name, session)
         
         is_new_url = False
         if url_obj is None:
@@ -67,7 +67,7 @@ class InstagramService:
                 title = caption if caption else f_info["filename"]
 
                 media = Media(
-                    platform_id=platform,
+                    platform_id=platform.id,
                     filepath=f_info["filepath"],
                     filename=f_info["filename"],
                     title=title,
