@@ -51,8 +51,8 @@ async def get_platform_list(session: AsyncSession = Depends(get_session)):
     return await PlatformService.list_platform(session)
 
 
-@router.get("/platform/{platform_name}/list", response_model=List[Media])
+@router.get("/platform/{platform_name}", response_model=List[Media])
 async def get_platform_name_list(platform_name: str, session: AsyncSession = Depends(get_session)):
-    return await PlatformService.get_platform_by_name(platform_name, session)
+    return await MediaService.get_media_by_platform_name(platform_name, session)
 
 

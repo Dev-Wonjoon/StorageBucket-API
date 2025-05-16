@@ -67,7 +67,7 @@ class InstagramService:
                 title = caption if caption else f_info["filename"]
 
                 media = Media(
-                    platform_id=platform.id,
+                    platform=platform,
                     filepath=f_info["filepath"],
                     filename=f_info["filename"],
                     title=title,

@@ -18,19 +18,14 @@ class PlatformService:
         await session.refresh(platform)
         return platform
     
-    @staticmethod
-    async def get_platform_by_name(name: str, session: AsyncSession) -> Platform:
+    async def get_platform_by_name(self, name: str, session: AsyncSession) -> Platform:
         platform = await session.scalar(
             select(Platform).where(Platform.name == name)
         )
         if not platform:
             raise HTTPException(status_code=404, detail=f"플랫폼을 찾을 수 없습니다: {name}")
-        
-        result = await session.scalars(
-            select(Media).where(Media.platform_id == platform.id)
-        )
 
-        return result
+        return platform
     
     async def get_or_create(self, name: str, session: AsyncSession) -> Platform:
         try:
