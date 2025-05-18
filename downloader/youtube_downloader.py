@@ -48,7 +48,7 @@ class YoutubeDownloader(Downloader):
         thumbnail_filename = None
         thumbnail_filepath = None
         if thumbnail_url:
-            content = await self.thumbnail_download(url)
+            content = await self.thumbnail_download(thumbnail_url)
             if content:
                 thumbnail_filename = f"{info['title']}_{unique_id}.jpg"
                 thumbnail_filepath = os.path.join(dest, thumbnail_filename)

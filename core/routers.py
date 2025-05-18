@@ -6,8 +6,8 @@ from urllib.parse import urlparse
 from .db import get_session
 from .models import Media, Platform
 
-from .media_service import MediaService
-from .platform_service import PlatformService
+from .service.media_service import MediaService
+from .service.platform_service import PlatformService
 
 from instagram.services import InstagramService
 from youtube.services import YoutubeService

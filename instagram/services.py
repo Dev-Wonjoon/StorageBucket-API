@@ -5,7 +5,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import selectinload
 from .models import Profile
 from core.models import Media, Url
-from core.platform_service import PlatformService
+from core.service.platform_service import PlatformService
 from downloader.instagram_downloader import InstagramDownloader
 from downloader.base import DownloadResult, FileInfo
 

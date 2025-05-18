@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     database_host: str = "localhost"
     database_port: int = 5432
 
-    work_directory: str = os.getenv("DOWNLOAD_DIR")
+    work_directory: str = "downloads"
 
     @property
     def database_url(self) -> str:

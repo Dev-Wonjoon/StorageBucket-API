@@ -1,7 +1,7 @@
 from typing import List, Optional
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
-from .models import Media
+from core.models import Media
 from .platform_service import PlatformService
 from core.db import get_session
 

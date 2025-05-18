@@ -7,7 +7,7 @@ import re
 import os
 import asyncio
 
-DOWNLOAD_DIR = os.getenv("DOWNLOAD_DIR", "downloaders")
+DOWNLOAD_DIR = os.getenv("DOWNLOAD_DIR", "downloads")
 
 class InstagramDownloader(Downloader):
 
@@ -61,13 +61,14 @@ class InstagramDownloader(Downloader):
             }
         })
     
-    def download_profile(self, loader: Instaloader, url: str) -> DownloadResult:
-        username = urlparse(url).path.strip("/").split("/")[0]
+    def download_profile(self, path: str) -> DownloadResult:
+        username = path.strip("/").split("/")[0]
+        loader = Instaloader()
         profile = Profile.from_username(loader.context, username)
         owner_id = profile.userid
         download_dir = os.path.join(DOWNLOAD_DIR, "instagram")
         dest = os.path.join(download_dir, str(owner_id))
-        os.makedirs(exist_ok=True)
+        os.makedirs(dest, exist_ok=True)
 
         loader.dirname_pattern = dest
         loader.download_profile(

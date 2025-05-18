@@ -1,6 +1,6 @@
 from core.models import Url, Media, Thumbnail
 from core.utils import now_kst
-from core.platform_service import PlatformService
+from core.service.platform_service import PlatformService
 from downloader.youtube_downloader import YoutubeDownloader
 from downloader.base import DownloadResult
 from fastapi import HTTPException
