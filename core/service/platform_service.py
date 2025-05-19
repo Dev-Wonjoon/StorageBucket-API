@@ -18,7 +18,8 @@ class PlatformService:
         await session.refresh(platform)
         return platform
     
-    async def get_platform_by_name(self, name: str, session: AsyncSession) -> Platform:
+    @classmethod
+    async def get_platform_by_name(cls, name: str, session: AsyncSession) -> Platform:
         platform = await session.scalar(
             select(Platform).where(Platform.name == name)
         )
@@ -29,17 +30,19 @@ class PlatformService:
     
     async def get_or_create(self, name: str, session: AsyncSession) -> Platform:
         try:
-            return await self.get_platform_by_name(name, session)
+            return await self.__class__.get_platform_by_name(name, session)
         except HTTPException as e:
             if e.status_code == 404:
                 return await self.add_platform(name, session)
             raise
     
-    async def list_platform(session: AsyncSession) -> List[Platform]:
+    @classmethod
+    async def list_platform(cls, session: AsyncSession) -> List[Platform]:
         result = await session.exec(select(Platform))
         return result.all()
     
-    async def delete_platform(self, name: str, session: AsyncSession) -> None:
-        platform = await self.get_platform_by_name(name, session)
+    @classmethod
+    async def delete_platform(cls, name: str, session: AsyncSession) -> None:
+        platform = await cls.get_platform_by_name(name, session)
         await session.delete(platform)
         await session.commit()

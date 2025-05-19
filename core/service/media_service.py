@@ -3,7 +3,7 @@ from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from core.models import Media
 from .platform_service import PlatformService
-from core.db import get_session
+from core.database import get_session
 
 class MediaService:
     async def list_media(session: AsyncSession) -> List[Media]:

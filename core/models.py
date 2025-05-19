@@ -59,8 +59,6 @@ class Thumbnail(SQLModel, table=True):
         sa_relationship_kwargs={"uselist": False},
     )
 
-
-
 class Tag(SQLModel, table=True):
     __tablename__ = "tag"
 

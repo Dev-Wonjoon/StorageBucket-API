@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends, Query
 from sqlmodel.ext.asyncio.session import AsyncSession
-from core.db import get_session
+from core.database import get_session
 from .services import InstagramService
 from .models import Profile
 
