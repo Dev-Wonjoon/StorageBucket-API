@@ -2,9 +2,9 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from core.models import Platform
-from core.service.platform_service import PlatformService
 from core.database import get_session
+from core.models import Platform
+from media.services.platform_service import PlatformService
 
 router = APIRouter(prefix="/api/platform", tags=["platform"])
 
@@ -50,4 +50,4 @@ async def delete_platform(
     플랫폼을 삭제합니다.
     """
     await PlatformService.delete_platform(name, session)
-    return {"message": f"플랫폼 '{name}'가 삭제되었습니다."} 
+    return {"message": f"플랫폼 '{name}'가 삭제되었습니다."}

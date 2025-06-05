@@ -16,6 +16,8 @@ class InstagramDownloader(Downloader):
         loader.dirname_pattern = dest
         loader.filename_pattern = f"{filename_prefix}_{uuid4().hex[:8]}"
         loader.save_metadata = False
+        loader.post_metadata_txt_pattern = ""
+        loader.storyitem_metadata_txt_pattern = ""
         return loader
     
     async def download(self, url: str) -> DownloadResult:

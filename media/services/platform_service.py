@@ -6,8 +6,9 @@ from sqlmodel import select
 
 
 class PlatformService:
-
-    async def add_platform(self, name: str, session: AsyncSession) -> Platform:
+    
+    @classmethod
+    async def add_platform(name: str, session: AsyncSession) -> Platform:
         existing = await session.scalar(select(Platform).where(Platform.name == name))
         if existing:
             raise HTTPException(status_code=409, detail=f"이미 존재하는 플랫폼입니다.: {name}")

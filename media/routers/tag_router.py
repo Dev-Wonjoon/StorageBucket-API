@@ -2,9 +2,9 @@ from typing import List
 from fastapi import APIRouter, Depends, Body
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from core.models import Tag, Media
-from core.service.tag_service import TagService
 from core.database import get_session
+from core.models import Tag, Media
+from media.services.tag_service import TagService
 
 router = APIRouter(prefix="/api/tag", tags=["tag"])
 
@@ -89,4 +89,4 @@ async def add_tags_to_multiple_media(
     - media_ids: 태그를 추가할 미디어 ID 목록
     - tag_names: 추가할 태그 이름 목록
     """
-    return await TagService.add_tags_to_multiple_media(media_ids, tag_names, session) 
+    return await TagService.add_tags_to_multiple_media(media_ids, tag_names, session)

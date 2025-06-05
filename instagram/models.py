@@ -2,7 +2,7 @@ from typing import Optional, List
 from sqlmodel import Field, SQLModel, Relationship
 from datetime import datetime
 from core.models import Media
-from core.utils import now_kst
+from utils.time_utils import now_kst
 
 
 class Profile(SQLModel, table=True):
