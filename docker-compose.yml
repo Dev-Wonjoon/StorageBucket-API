@@ -20,6 +20,7 @@ services:
 
   db:
     image: postgres:15
+    container_name: postgresql
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
@@ -29,6 +30,13 @@ services:
     ports:
       - "5432:5432"
     restart: always
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.15
+    container_name: meili
+    ports: 
+      - "7700:7700"
+
 
 volumes:
   postgres_data: 

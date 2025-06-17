@@ -31,6 +31,7 @@ class YoutubeDownloader(Downloader):
         dest = os.path.join(DOWNLOAD_DIR, "youtube")
         thumbnail_dest = os.path.join(DOWNLOAD_DIR, "thumbnails")
         os.makedirs(dest, exist_ok=True)
+        os.makedirs(thumbnail_dest, exist_ok=True)
 
         unique_id = uuid.uuid4().hex[:8]
 

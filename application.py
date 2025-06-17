@@ -19,6 +19,7 @@ async def lifespan(app: FastAPI):
 
 
 DOWNLOAD_DIR = os.getenv("DOWNLOAD_DIR", "downloads")
+os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 app = FastAPI(debug=True, title="StorageBucket", lifespan=lifespan)
 
 app.mount("/api/file", StaticFiles(directory=DOWNLOAD_DIR, html=False), name="downloads")

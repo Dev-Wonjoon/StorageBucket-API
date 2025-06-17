@@ -1,6 +1,6 @@
 from typing import List, Optional
 from datetime import datetime
-from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel import BigInteger, Column, SQLModel, Field, Relationship
 from pydantic import field_validator
 from utils.time_utils import now_kst
 
@@ -33,6 +33,7 @@ class Media(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
     title: str
     filepath: str
+    file_size: Optional[int] = Field(default=None, sa_column=Column(BigInteger))
     thumbnail_path: str = Field(default=None, nullable=True)
     platform_id: Optional[int] = Field(index=True, foreign_key="platform.id", nullable=False)
     owner_id: Optional[int] = Field(foreign_key="profile.owner_id", nullable=True)

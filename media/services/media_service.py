@@ -80,13 +80,16 @@ class MediaService:
             with open(filepath, "wb") as buffer:
                 content = await file.read()
                 buffer.write(content)
+                
+            file_size = os.path.getsize(filepath)
             
             media = Media(
                 title=file.filename,
                 filepath=filepath,
                 platform_id=platform.id,
                 platform=platform,
-                tags=tags
+                tags=tags,
+                file_size=file_size
             )
             session.add(media)
             created_media_list.append(media)
