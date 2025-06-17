@@ -9,9 +9,9 @@ services:
       - ./:/app:delegated
     environment:
       - DATABASE_TYPE=postgresql
-      - POSTGRESQL_DATABASE_NAME=storagebucket
-      - POSTGRESQL_USER=postgres
-      - POSTGRESQL_PASSWORD=postgres
+      - POSTGRESQL_DATABASE_NAME=${DB_NAME}
+      - POSTGRESQL_USER=${DB_USERNAME}
+      - POSTGRESQL_PASSWORD=${DB_PASSWORD}
       - POSTGRESQL_HOST=db
       - POSTGRESQL_PORT=5432
     depends_on:
@@ -24,9 +24,9 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=storagebucket
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
     ports:
       - "5432:5432"
     restart: always
@@ -36,7 +36,7 @@ services:
     container_name: meili
     ports: 
       - "7700:7700"
-
-
+    environment:
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
 volumes:
   postgres_data: 
