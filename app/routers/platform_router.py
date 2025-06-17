@@ -1,10 +1,10 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from core.database import get_session
-from core.models import Platform
-from media.services.platform_service import PlatformService
+from app.models.platform import Platform
+from app.services.platform_service import PlatformService
 
 router = APIRouter(prefix="/api/platform", tags=["platform"])
 

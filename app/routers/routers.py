@@ -2,8 +2,8 @@ from typing import List
 from fastapi import APIRouter, Depends, Query
 from sqlmodel.ext.asyncio.session import AsyncSession
 from core.database import get_session
-from .services import InstagramService
-from .models import Profile
+from ..services.instagram_services import InstagramService
+from app.models.profile import Profile
 
 
 router = APIRouter(prefix="/api/instagram", tags=["Instagram"])

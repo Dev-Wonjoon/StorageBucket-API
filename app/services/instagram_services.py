@@ -1,11 +1,11 @@
 from typing import List
-from sqlmodel import select, func
+from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from fastapi import HTTPException
-from sqlalchemy.orm import selectinload
-from .models import Profile
-from core.models import Media, Url
-from media.services.platform_service import PlatformService
+from app.models.profile import Profile
+from app.models.media import Media
+from app.models.urls import Url
+from app.services.platform_service import PlatformService
 from downloader.instagram_downloader import InstagramDownloader
 from downloader.base import DownloadResult, FileInfo
 

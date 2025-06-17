@@ -3,8 +3,9 @@ from fastapi import APIRouter, Depends, Body
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from core.database import get_session
-from core.models import Tag, Media
-from media.services.tag_service import TagService
+from app.models.media import Media
+from app.models.tag import Tag
+from app.services.tag_service import TagService
 
 router = APIRouter(prefix="/api/tag", tags=["tag"])
 

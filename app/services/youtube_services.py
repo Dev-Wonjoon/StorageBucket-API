@@ -2,10 +2,11 @@ from fastapi import HTTPException
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from core.models import Media, Platform, Url
+from app.models.media import Media
+from app.models.urls import Url
 from downloader.base import FileInfo, DownloadResult
 from downloader.youtube_downloader import YoutubeDownloader
-from media.services.platform_service import PlatformService
+from app.services.platform_service import PlatformService
 from utils.time_utils import now_kst
 
 class YoutubeService:

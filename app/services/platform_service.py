@@ -1,5 +1,6 @@
 from typing import List
-from core.models import Platform, Media
+from app.models.platform import Platform
+from app.models.media import Media
 from fastapi import HTTPException
 from sqlmodel.ext.asyncio.session import AsyncSession 
 from sqlmodel import select

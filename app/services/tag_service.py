@@ -3,7 +3,8 @@ from fastapi import HTTPException
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from core.models import Media, Tag
+from app.models.media import Media
+from app.models.tag import Tag
 
 
 class TagService:

@@ -2,11 +2,11 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
 from fastapi.staticfiles import StaticFiles
-from media.routers.download_router import router as download_router
-from media.routers.media_router import router as media_router
-from media.routers.platform_router import router as platform_router
-from media.routers.tag_router import router as tag_router
-from instagram.routers import router as insta_router
+from app.routers.download_router import router as download_router
+from app.routers.media_router import router as media_router
+from app.routers.platform_router import router as platform_router
+from app.routers.tag_router import router as tag_router
+from app.routers.routers import router as insta_router
 from core.config import configure_cors
 from core.database import init_db
 

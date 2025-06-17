@@ -8,8 +8,8 @@ import uuid
 
 from core.database import get_session
 from core.tasks import schedule_download
-from core.models import Url
-from instagram.services import InstagramService
+from app.models.urls import Url
+from app.services.instagram_services import InstagramService
 from youtube.services import YoutubeService
 
 router = APIRouter(prefix="/api/download", tags=["download"])

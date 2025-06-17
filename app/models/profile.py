@@ -1,7 +1,7 @@
 from typing import Optional, List
 from sqlmodel import Field, SQLModel, Relationship
 from datetime import datetime
-from core.models import Media
+from app.models.media import Media
 from utils.time_utils import now_kst
 
 

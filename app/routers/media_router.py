@@ -4,8 +4,8 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 
 from core.database import get_session
-from core.models import Media
-from media.services.media_service import MediaService
+from app.models.media import Media
+from app.services.media_service import MediaService
 
 router = APIRouter(prefix="/api/media", tags=["media"])
 

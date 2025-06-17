@@ -3,9 +3,9 @@ from typing import List, Optional
 from fastapi import HTTPException, UploadFile
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
-from core.models import Media
-from media.services.tag_service import TagService
-from .platform_service import PlatformService
+from app.models.media import Media
+from app.services.tag_service import TagService
+from app.services.platform_service import PlatformService
 from core.database import get_session
 from core.config import Settings
 
