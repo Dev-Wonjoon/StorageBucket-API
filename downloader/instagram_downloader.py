@@ -70,8 +70,7 @@ class InstagramDownloader(Downloader):
         loader = Instaloader()
         profile = Profile.from_username(loader.context, username)
         owner_id = profile.userid
-        download_dir = os.path.join(DOWNLOAD_DIR, "instagram")
-        dest = os.path.join(download_dir, str(owner_id))
+        dest = os.path.join(settings.ig_dir, str(owner_id))
         os.makedirs(dest, exist_ok=True)
 
         loader.dirname_pattern = dest
@@ -101,7 +100,7 @@ class InstagramDownloader(Downloader):
         profile = Profile.from_username(loader.context, username=owner_name)
         owner_id = profile.userid
 
-        dest = os.path.join(DOWNLOAD_DIR, "instagram", str(owner_id))
+        dest = os.path.join(settings.ig_dir, str(owner_id))
         os.makedirs(dest, exist_ok=True)
 
         file_infos: list[FileInfo] = []
