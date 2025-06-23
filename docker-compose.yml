@@ -1,4 +1,16 @@
 services:
+
+  db:
+    image: postgres:15
+    volumes:
+      - /mnt/myssd/storagebucket/postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - "${DB_PORT}:5432"
+    restart: always
   web:
     build: .
     ports:
@@ -14,19 +26,6 @@ services:
       - DB_PORT=${DB_PORT}
     depends_on:
       - db
-
-  db:
-    image: postgres:15
-    container_name: postgresql
-    volumes:
-      - /mnt/myssd/storagebucket/postgres_data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_USER=${DB_USERNAME}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
-    ports:
-      - "${DB_PORT}:5432"
-    restart: always
 
   meilisearch:
     image: getmeili/meilisearch:v1.15

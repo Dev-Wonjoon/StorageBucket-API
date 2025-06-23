@@ -9,7 +9,11 @@ settings = Settings()
 
 DATABASE_URL = settings.database_url
 
-engine = create_async_engine(DATABASE_URL, echo=False)
+engine = create_async_engine(
+    DATABASE_URL,
+    echo=False,
+    connect_args={"timeout": 10}
+)
 
 AsyncSessionLocal = async_sessionmaker(
     bind=engine,
@@ -18,8 +22,9 @@ AsyncSessionLocal = async_sessionmaker(
 )
 
 async def init_db():
-    async with engine.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.create_all)
+    if settings.database_type == 'sqlite':
+        async with engine.begin() as conn:
+            await conn.run_sync(SQLModel.metadata.create_all)
 
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:

@@ -10,7 +10,7 @@ from core.database import get_session
 from core.config import Settings
 
 settings = Settings()
-UPLOAD_DIR = os.path.join(settings.work_directory, "local")
+UPLOAD_DIR = os.path.join(settings.download_dir, "local")
 
 class MediaService:
     async def list_media(session: AsyncSession) -> List[Media]:

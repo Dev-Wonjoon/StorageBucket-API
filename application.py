@@ -13,10 +13,20 @@ from core.migrations import upgrade_to_head
 
 import os
 
-@asynccontextmanager
 async def lifespan(app: FastAPI):
+    import logging, time
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
+
+    t0 = time.perf_counter()
+    logging.info("★ step 1: init_db 시작")
     await init_db()
+    logging.info("★ step 1: init_db 끝 (%.2fs)", time.perf_counter() - t0)
+
+    t1 = time.perf_counter()
+    logging.info("★ step 2: alembic upgrade 시작")
     await upgrade_to_head()
+    logging.info("★ step 2: alembic upgrade 끝 (%.2fs)", time.perf_counter() - t1)
+
     yield
 
 

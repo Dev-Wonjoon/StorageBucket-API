@@ -13,7 +13,8 @@ sys.path.append(str(settings.base_dir))
 async_engine: AsyncEngine = create_async_engine(
     settings.database_url,
     poolclass=pool.NullPool,
-    future=True
+    future=True,
+    connect_args={"timeout": 10}
 )
 config = context.config
 
@@ -21,11 +22,11 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 target_metadata = SQLModel.metadata
-config.set_main_option('sqlalchemy.url', settings.database_url)
+config.set_main_option('sqlalchemy.url', settings.database_url_cfg)
 
 def run_migrations_offline() -> None:
     """alembic upgrade --sql` 같은 오프라인 모드"""
-    url = settings.database_url
+    url = settings.database_url_cfg
     context.configure(
         url=url,
         target_metadata=target_metadata,

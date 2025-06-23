@@ -1,11 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
-from pydantic import Field
+from pydantic import Field, field_validator, ValidationInfo
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Literal, List, ClassVar
 from sqlalchemy.engine import URL
-from urllib.parse import quote_plus
 import os
 
 
@@ -28,8 +27,20 @@ class Settings(BaseSettings):
     postgresql_port: int = Field(alias="DB_PORT")
 
     # 작업 디렉토리
-    work_directory: str = "downloads"
+    base_dir: ClassVar[Path] = BASE_DIR
+    download_dir: Path = Field(default_factory=lambda: Path(
+        os.getenv("DOWNLOAD_DIR", BASE_DIR / 'downloads')))
+    yt_dir: Path | None = None
+    ig_dir: Path | None = None
 
+    @field_validator("yt_dir", mode="after")
+    def _set_default_yt_dir(cls, v: Path| None, info: ValidationInfo):
+        return v or info.data["download_dir"] / "youtube"
+    
+    @field_validator("ig_dir", mode="after")
+    def _set_default_ig_dir(cls, v: Path | None, info: ValidationInfo):
+        return v or info.data["download_dir"] / "instagram"
+    
     @property
     def database_url(self) -> str:
         if self.database_type == "sqlite":
@@ -45,13 +56,10 @@ class Settings(BaseSettings):
         )
         
         return (url_obj.render_as_string(hide_password=False))
-        
-    DOMAIN_PATHS: List = {
-        os.getenv("YT_DIR"),
-        os.getenv("IG_DIR"),
-    }
     
-    base_dir: ClassVar[Path] = BASE_DIR
+    @property
+    def database_url_cfg(self) -> str:
+        return self.database_url.replace("%", "%%")
 
 
 def configure_cors(app: FastAPI) -> None:

@@ -5,13 +5,11 @@ import requests
 import uuid
 from PIL import Image
 from io import BytesIO
-
-from typing import Any, Dict, List
+from core.config import Settings
 from downloader.base import Downloader, FileInfo, Platform, DownloadResult
 
-
-DOWNLOAD_DIR = os.getenv("DOWNLOAD_DIR", "downloads")
-
+settings = Settings()
+YT_DIR = settings.yt_dir
 
 class YoutubeDownloader(Downloader):
 
@@ -28,8 +26,8 @@ class YoutubeDownloader(Downloader):
 
 
     async def download(self, url: str) -> DownloadResult:
-        dest = os.path.join(DOWNLOAD_DIR, "youtube")
-        thumbnail_dest = os.path.join(DOWNLOAD_DIR, "thumbnails")
+        dest = os.path.join(YT_DIR, "youtube")
+        thumbnail_dest = os.path.join(YT_DIR, "thumbnails")
         os.makedirs(dest, exist_ok=True)
         os.makedirs(thumbnail_dest, exist_ok=True)
 

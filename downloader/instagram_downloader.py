@@ -3,11 +3,13 @@ from urllib.parse import urlparse
 from instaloader import Instaloader, Post, Profile
 from typing import List
 from uuid import uuid4
+from core.config import Settings
 import re
 import os
 import asyncio
 
-DOWNLOAD_DIR = os.getenv("DOWNLOAD_DIR", "downloads")
+settings = Settings()
+IG_DIR = settings.ig_dir
 
 class InstagramDownloader(Downloader):
 
@@ -35,7 +37,7 @@ class InstagramDownloader(Downloader):
         shortcode = url.rstrip("/").split("/")[-1]
         base_loader = Instaloader()
         post = Post.from_shortcode(base_loader.context, shortcode)
-        dest = os.path.join(DOWNLOAD_DIR, "instagram", str(post.owner_id))
+        dest = os.path.join(IG_DIR, str(post.owner_id))
         os.makedirs(dest, exist_ok=True)
 
         before = set(os.listdir(dest))
