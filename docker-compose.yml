@@ -19,7 +19,7 @@ services:
     image: postgres:15
     container_name: postgresql
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - /mnt/myssd/storagebucket/postgres_data:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=${DB_USERNAME}
       - POSTGRES_PASSWORD=${DB_PASSWORD}

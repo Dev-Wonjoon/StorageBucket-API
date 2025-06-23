@@ -4,6 +4,7 @@ from pathlib import Path
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Literal, List, ClassVar
+from sqlalchemy.engine import URL
 from urllib.parse import quote_plus
 import os
 
@@ -17,7 +18,7 @@ class Settings(BaseSettings):
     database_type: Literal["sqlite", "postgresql"] = "sqlite"
     
     # SQLite 설정
-    sqlite_database_name: str = "bucket.db"
+    sqlite_database_name: str = Field(alias="DB_NAME")
     
     # PostgreSQL 설정
     postgresql_database_name: str = Field(alias="DB_NAME")
@@ -32,12 +33,18 @@ class Settings(BaseSettings):
     @property
     def database_url(self) -> str:
         if self.database_type == "sqlite":
-            return f"sqlite+aiosqlite:///{self.sqlite_database_name}"
-        elif self.database_type == "postgresql":
-            return (
-                f"postgresql+asyncpg://{self.postgresql_user}:{self.postgresql_password}"
-                f"@{self.postgresql_host}:{self.postgresql_port}/{self.postgresql_database_name}"
-            )
+            return f"sqlite+aiosqlite:///{self.sqlite_database_name}.db"
+        
+        url_obj = URL.create(
+            "postgresql+asyncpg",
+            username=self.postgresql_user,
+            password=self.postgresql_password,
+            host=self.postgresql_host,
+            port=self.postgresql_port,
+            database=self.postgresql_database_name
+        )
+        
+        return (url_obj.render_as_string(hide_password=False))
         
     DOMAIN_PATHS: List = {
         os.getenv("YT_DIR"),

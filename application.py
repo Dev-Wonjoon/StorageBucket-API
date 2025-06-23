@@ -16,7 +16,7 @@ import os
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
-    upgrade_to_head()
+    await upgrade_to_head()
     yield
 
 
