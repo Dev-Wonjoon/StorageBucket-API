@@ -1,9 +1,14 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from pathlib import Path
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import Literal, List, Union, Optional
+from typing import Literal, List, ClassVar
+from urllib.parse import quote_plus
 import os
 
+
+BASE_DIR: Path = Path(__file__).resolve().parent.parent
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file = ".env", env_file_encoding="utf-8", extra="ignore")
@@ -15,11 +20,11 @@ class Settings(BaseSettings):
     sqlite_database_name: str = "bucket.db"
     
     # PostgreSQL 설정
-    postgresql_database_name: str = "storagebucket"
-    postgresql_user: str = "postgres"
-    postgresql_password: str = "postgres"
-    postgresql_host: str = "localhost"
-    postgresql_port: int = 5432
+    postgresql_database_name: str = Field(alias="DB_NAME")
+    postgresql_user: str = Field(alias="DB_USERNAME")
+    postgresql_password: str = Field(alias="DB_PASSWORD")
+    postgresql_host: str = Field(alias="DB_HOST")
+    postgresql_port: int = Field(alias="DB_PORT")
 
     # 작업 디렉토리
     work_directory: str = "downloads"
@@ -38,12 +43,14 @@ class Settings(BaseSettings):
         os.getenv("YT_DIR"),
         os.getenv("IG_DIR"),
     }
+    
+    base_dir: ClassVar[Path] = BASE_DIR
 
 
 def configure_cors(app: FastAPI) -> None:
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost:5174", "http://192.168.1.172:5174"],
+        allow_origin_regex=r"^http://192\.168\.\d{1,3}\.\d{1,3}(:\d+)?$",
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

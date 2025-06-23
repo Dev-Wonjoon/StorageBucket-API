@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-
 from fastapi.staticfiles import StaticFiles
+
 from app.routers.download_router import router as download_router
 from app.routers.media_router import router as media_router
 from app.routers.platform_router import router as platform_router
@@ -9,12 +9,14 @@ from app.routers.tag_router import router as tag_router
 from app.routers.routers import router as insta_router
 from core.config import configure_cors
 from core.database import init_db
+from core.migrations import upgrade_to_head
 
 import os
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
+    upgrade_to_head()
     yield
 
 

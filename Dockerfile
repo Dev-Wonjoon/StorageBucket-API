@@ -15,4 +15,4 @@ COPY . .
 
 VOLUME ["/app"]
 
-CMD ["uvicorn", "application:app", "--host", "0.0.0.0", "--port", "27755"]
+CMD ["uvicorn", "application:app", "--host", "0.0.0.0", "--port", "8000"]

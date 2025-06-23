@@ -1,22 +1,19 @@
-version: '3.8'
-
 services:
   web:
     build: .
     ports:
-      - "27755:27755"
+      - "${WEB_PORT}:8000"
     volumes:
       - ./:/app:delegated
     environment:
       - DATABASE_TYPE=postgresql
-      - POSTGRESQL_DATABASE_NAME=${DB_NAME}
-      - POSTGRESQL_USER=${DB_USERNAME}
-      - POSTGRESQL_PASSWORD=${DB_PASSWORD}
-      - POSTGRESQL_HOST=db
-      - POSTGRESQL_PORT=5432
+      - DB_NAME=${DB_NAME}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
     depends_on:
       - db
-    restart: always
 
   db:
     image: postgres:15
@@ -24,11 +21,11 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USERNAME}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
     ports:
-      - "5432:5432"
+      - "${DB_PORT}:5432"
     restart: always
 
   meilisearch:
