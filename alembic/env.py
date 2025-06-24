@@ -14,7 +14,6 @@ async_engine: AsyncEngine = create_async_engine(
     settings.database_url,
     poolclass=pool.NullPool,
     future=True,
-    connect_args={"timeout": 10}
 )
 config = context.config
 

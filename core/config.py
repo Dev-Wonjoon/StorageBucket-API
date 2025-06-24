@@ -59,7 +59,15 @@ class Settings(BaseSettings):
     
     @property
     def database_url_cfg(self) -> str:
-        return self.database_url.replace("%", "%%")
+        url_obj = URL.create(
+            "postgresql+psycopg2",
+            username=self.postgresql_user,
+            password=self.postgresql_password,
+            host=self.postgresql_host,
+            port=self.postgresql_port,
+            database=self.postgresql_database_name,
+        )
+        return url_obj.render_as_string(hide_password=False).replace("%", "%%")
 
 
 def configure_cors(app: FastAPI) -> None:

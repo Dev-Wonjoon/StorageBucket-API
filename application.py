@@ -7,16 +7,22 @@ from app.routers.media_router import router as media_router
 from app.routers.platform_router import router as platform_router
 from app.routers.tag_router import router as tag_router
 from app.routers.routers import router as insta_router
-from core.config import configure_cors
+from core.config import configure_cors, Settings
 from core.database import init_db
 from core.migrations import upgrade_to_head
-
 import os
 
+@asynccontextmanager
 async def lifespan(app: FastAPI):
-    import logging, time
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
-
+    import time, logging
+    
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)-8s %(name)s: %(message)s",
+    )
+    logging.getLogger("alembic").setLevel(logging.DEBUG)
+    logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
+    
     t0 = time.perf_counter()
     logging.info("★ step 1: init_db 시작")
     await init_db()
@@ -29,8 +35,8 @@ async def lifespan(app: FastAPI):
 
     yield
 
-
-DOWNLOAD_DIR = os.getenv("DOWNLOAD_DIR", "downloads")
+settings = Settings()
+DOWNLOAD_DIR = settings.download_dir
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 app = FastAPI(debug=True, title="StorageBucket", lifespan=lifespan)
 

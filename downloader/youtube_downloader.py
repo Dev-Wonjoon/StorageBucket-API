@@ -1,7 +1,7 @@
 import asyncio
 import os
 import yt_dlp
-import requests
+import httpx
 import uuid
 from PIL import Image
 from io import BytesIO
@@ -14,19 +14,21 @@ YT_DIR = settings.yt_dir
 class YoutubeDownloader(Downloader):
 
     async def thumbnail_download(self, url: str):
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-        origin_bytes = response.content
-        
+        async with httpx.AsyncClient(timeout=10) as client:
+            resp = await client.get(url)
+            resp.raise_for_status()
+            content = resp.content()
+        return await asyncio.to_thread(self._convert_to_webp, content)
+    
+    def _convert_to_webp(self, origin_bytes: bytes) -> bytes:
         img = Image.open(BytesIO(origin_bytes)).convert("RGB")
         buf = BytesIO()
-        img.save(buf, format="WEBP", quality=100, optimize=True, method=3)
-
+        img.save(buf, format="WEBP", quality=85, optimize=True, method=3)
         return buf.getvalue()
 
 
     async def download(self, url: str) -> DownloadResult:
-        dest = os.path.join(YT_DIR, "youtube")
+        dest = os.path.join(YT_DIR)
         thumbnail_dest = os.path.join(YT_DIR, "thumbnails")
         os.makedirs(dest, exist_ok=True)
         os.makedirs(thumbnail_dest, exist_ok=True)
