@@ -219,7 +219,3 @@ $RECYCLE.BIN/
 *.db
 
 downloads/
-
-alembic/versions/
-
-alembic/README
