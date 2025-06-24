@@ -21,9 +21,8 @@ AsyncSessionLocal = async_sessionmaker(
 )
 
 async def init_db():
-    if settings.database_type == 'sqlite':
-        async with engine.begin() as conn:
-            await conn.run_sync(SQLModel.metadata.create_all)
+    async with engine.begin() as conn:
+        await conn.run_sync(SQLModel.metadata.create_all)
 
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:

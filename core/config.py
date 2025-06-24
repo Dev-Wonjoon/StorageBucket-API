@@ -12,9 +12,10 @@ BASE_DIR: Path = Path(__file__).resolve().parent.parent
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file = ".env", env_file_encoding="utf-8", extra="ignore")
+    debug: bool = True
 
     # 데이터베이스 설정
-    database_type: Literal["sqlite", "postgresql"] = "sqlite"
+    database_type: Literal["sqlite", "postgresql"] = Field(default="sqlite", alias="DATABASE_TYPE")
     
     # SQLite 설정
     sqlite_database_name: str = Field(alias="DB_NAME")
@@ -43,31 +44,20 @@ class Settings(BaseSettings):
     
     @property
     def database_url(self) -> str:
-        if self.database_type == "sqlite":
+        if self.database_type == 'sqlite':
             return f"sqlite+aiosqlite:///{self.sqlite_database_name}.db"
         
-        url_obj = URL.create(
-            "postgresql+asyncpg",
-            username=self.postgresql_user,
-            password=self.postgresql_password,
-            host=self.postgresql_host,
-            port=self.postgresql_port,
-            database=self.postgresql_database_name
-        )
+        elif self.database_type == "postgresql":
         
-        return (url_obj.render_as_string(hide_password=False))
-    
-    @property
-    def database_url_cfg(self) -> str:
-        url_obj = URL.create(
-            "postgresql+psycopg2",
-            username=self.postgresql_user,
-            password=self.postgresql_password,
-            host=self.postgresql_host,
-            port=self.postgresql_port,
-            database=self.postgresql_database_name,
-        )
-        return url_obj.render_as_string(hide_password=False).replace("%", "%%")
+            url_obj = URL.create(
+                "postgresql+asyncpg",
+                username=self.postgresql_user,
+                password=self.postgresql_password,
+                host=self.postgresql_host,
+                port=self.postgresql_port,
+                database=self.postgresql_database_name
+            )
+            return (url_obj.render_as_string(hide_password=False))
 
 
 def configure_cors(app: FastAPI) -> None:
