@@ -1,17 +1,14 @@
 from typing import AsyncGenerator
 from sqlmodel import SQLModel
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-from core.config import Settings
+from core import settings
 from sqlmodel.ext.asyncio.session import AsyncSession
-
-
-settings = Settings()
 
 DATABASE_URL = settings.database_url
 
 engine = create_async_engine(
     DATABASE_URL,
-    echo=False,
+    echo=False, 
 )
 
 AsyncSessionLocal = async_sessionmaker(

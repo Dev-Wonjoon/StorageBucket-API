@@ -1,46 +1,61 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
-from pydantic import Field, field_validator, ValidationInfo
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import Literal, List, ClassVar
+from typing import Literal, ClassVar, Optional
 from sqlalchemy.engine import URL
 import os
 
-
-BASE_DIR: Path = Path(__file__).resolve().parent.parent
+class _Default:
+    DB_TYPE: Literal["sqlite", "postgresql"] = "sqlite"
+    DEBUG: bool = True
+    WEB_PORT: int = 8000
+    
+    SQLITE_DB_NAME = "storagebucket"
+    
+    PG_NAME = "storagebucket"
+    PG_USER = "postgres"
+    PG_PWD = "postgres"
+    PG_HOST = "localhost"
+    PG_PORT = 5432
+    
+    BASE_DIR = Path(__file__).resolve().parent.parent
+    DOWNLOAD_DIR = BASE_DIR / "downloads"
+    YT_VIDEO_DIR = "youtubes"
+    YT_THUMBNAIL_DIR = "thumbnails"
+    IG_DIR = "instagrams"
+    
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file = ".env", env_file_encoding="utf-8", extra="ignore")
-    debug: bool = True
-
-    # 데이터베이스 설정
-    database_type: Literal["sqlite", "postgresql"] = Field(default="sqlite", alias="DATABASE_TYPE")
+    debug: bool = Field(default=_Default.DEBUG)
+    database_type: str = Field(default=_Default.DB_TYPE, alias="DATABASE_TYPE")
     
-    # SQLite 설정
-    sqlite_database_name: str = Field(alias="DB_NAME")
+    sqlite_database_name: str = Field(default=_Default.SQLITE_DB_NAME, alias="SQLITE_DB_NAME")
     
-    # PostgreSQL 설정
-    postgresql_database_name: str = Field(alias="DB_NAME")
-    postgresql_user: str = Field(alias="DB_USERNAME")
-    postgresql_password: str = Field(alias="DB_PASSWORD")
-    postgresql_host: str = Field(alias="DB_HOST")
-    postgresql_port: int = Field(alias="DB_PORT")
-
-    # 작업 디렉토리
-    base_dir: ClassVar[Path] = BASE_DIR
-    download_dir: Path = Field(default_factory=lambda: Path(
-        os.getenv("DOWNLOAD_DIR", BASE_DIR / 'downloads')))
-    yt_dir: Path | None = None
-    ig_dir: Path | None = None
-
-    @field_validator("yt_dir", mode="after")
-    def _set_default_yt_dir(cls, v: Path| None, info: ValidationInfo):
-        return v or info.data["download_dir"] / "youtube"
+    postgres_database_name: str = Field(default=_Default.PG_NAME, alias="PG_NAME")
+    postgres_user: str = Field(default=_Default.PG_USER, alias="PG_USERNAME")
+    postgres_password: str = Field(default=_Default.PG_PWD, alias="PG_PASSWORD")
+    postgres_host: str = Field(default=_Default.PG_HOST, alias="PG_HOST")
+    postgres_port: int = Field(default=_Default.PG_PORT, alias="PG_PORT")
     
-    @field_validator("ig_dir", mode="after")
-    def _set_default_ig_dir(cls, v: Path | None, info: ValidationInfo):
-        return v or info.data["download_dir"] / "instagram"
+    base_dir: ClassVar[Path] = _Default.BASE_DIR
+    download_dir: Path = Field(
+        default_factory=lambda: Path(
+            os.getenv("DOWNLOAD_DIR", _Default.DOWNLOAD_DIR)
+        ))
+    yt_video_dir: Optional[Path] = None
+    yt_thumbnail_dir: Optional[Path] = None
+    ig_dir: Optional[Path] = None
+    
+    @model_validator(mode="after")
+    def _populate_subdir(self):
+        self.yt_video_dir = self.yt_video_dir or self.download_dir / _Default.YT_VIDEO_DIR
+        self.yt_thumbnail_dir = self.yt_thumbnail_dir or self.download_dir / _Default.YT_THUMBNAIL_DIR
+        self.ig_dir = self.ig_dir or self.download_dir / _Default.IG_DIR
+        
+        return self
     
     @property
     def database_url(self) -> str:
@@ -51,13 +66,16 @@ class Settings(BaseSettings):
         
             url_obj = URL.create(
                 "postgresql+asyncpg",
-                username=self.postgresql_user,
-                password=self.postgresql_password,
-                host=self.postgresql_host,
-                port=self.postgresql_port,
-                database=self.postgresql_database_name
+                username=self.postgres_user,
+                password=self.postgres_password,
+                host=self.postgres_host,
+                port=self.postgres_port,
+                database=self.postgres_database_name
             )
             return (url_obj.render_as_string(hide_password=False))
+        
+        else:
+            return f"sqlite+aiosqlite:///{self.sqlite_database_name}.db"
 
 
 def configure_cors(app: FastAPI) -> None:

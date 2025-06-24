@@ -18,7 +18,7 @@ services:
     volumes:
       - ./:/app:delegated
     environment:
-      - DATABASE_TYPE=postgresql
+      - DATABASE_TYPE=sqlite
       - DB_NAME=${DB_NAME}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}

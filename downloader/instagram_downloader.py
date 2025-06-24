@@ -3,12 +3,11 @@ from urllib.parse import urlparse
 from instaloader import Instaloader, Post, Profile
 from typing import List
 from uuid import uuid4
-from core.config import Settings
+from core import settings
 import re
 import os
 import asyncio
 
-settings = Settings()
 IG_DIR = settings.ig_dir
 
 class InstagramDownloader(Downloader):

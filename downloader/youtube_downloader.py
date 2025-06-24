@@ -5,11 +5,11 @@ import httpx
 import uuid
 from PIL import Image
 from io import BytesIO
-from core.config import Settings
+from core import settings
 from downloader.base import Downloader, FileInfo, Platform, DownloadResult
 
-settings = Settings()
-YT_DIR = settings.yt_dir
+YT_VIDEO_DIR = settings.yt_video_dir
+YT_TUHMBNAIL_DIR = settings.yt_thumbnail_dir
 
 class YoutubeDownloader(Downloader):
 
@@ -28,8 +28,8 @@ class YoutubeDownloader(Downloader):
 
 
     async def download(self, url: str) -> DownloadResult:
-        dest = os.path.join(YT_DIR)
-        thumbnail_dest = os.path.join(YT_DIR, "thumbnails")
+        dest = os.path.join(YT_VIDEO_DIR)
+        thumbnail_dest = os.path.join(YT_TUHMBNAIL_DIR, "thumbnails")
         os.makedirs(dest, exist_ok=True)
         os.makedirs(thumbnail_dest, exist_ok=True)
 
