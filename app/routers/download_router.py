@@ -1,16 +1,17 @@
 import re
-from fastapi import APIRouter, HTTPException, BackgroundTasks, Depends
+from fastapi import APIRouter, HTTPException, BackgroundTasks, Depends, Request
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from urllib.parse import urlparse
 from pydantic import BaseModel
-import uuid
+import uuid, httpx
 
-from core.database import get_session
-from core.tasks import schedule_download
 from app.models.urls import Url
 from app.services.instagram_services import InstagramService
 from app.services.youtube_services import YoutubeService
+from core.database import get_session
+from core.tasks import schedule_download
+from utils.domain_extractor import DomainExtractor
 
 router = APIRouter(prefix="/api/download", tags=["download"])
 
@@ -19,6 +20,13 @@ URL_SERVICE_MAP = {
     r"(?:^|\.)(?:youtube\.com|youtu\.be)$": YoutubeService
 }
 
+
+async def get_http_client(request: Request) -> httpx.AsyncClient:
+    return request.app.state.http_client
+
+async def get_extractor(request: Request) -> DomainExtractor:
+    return request.app.state.tld_extractor
+
 class DownloadRequest(BaseModel):
     url: str
 
@@ -26,13 +34,14 @@ class DownloadRequest(BaseModel):
 async def download_url(
     request: DownloadRequest,
     background_tasks: BackgroundTasks,
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session),
+    client: httpx.AsyncClient = Depends(get_http_client),
+    extractor: DomainExtractor = Depends(get_extractor)
 ):
-    parsed = urlparse(request.url)
-    host = parsed.netloc.lower()
+    domain = extractor.extract_domain(request.url)
     
     for pattern, service_cls in URL_SERVICE_MAP.items():
-        if re.search(pattern, host):
+        if re.search(pattern, domain):
             exists = await session.scalar(select(Url).where(Url.url == request.url))
             if exists:
                 raise HTTPException(
@@ -45,5 +54,5 @@ async def download_url(
             return {"message": "다운로드 예약되었습니다.", "id": str(uuid.uuid4())}
     raise HTTPException(
         status_code=400,
-        detail=f"지원하지 않는 플랫폼입니다: {host}"
+        detail=f"지원하지 않는 플랫폼입니다: {domain}"
     )

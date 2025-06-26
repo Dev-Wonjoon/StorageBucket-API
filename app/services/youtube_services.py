@@ -22,7 +22,6 @@ class YoutubeService:
     def __init__(
         self,
         *,
-        reg_domain: RegDomainFn,
         http_client: httpx.AsyncClient,
     ):
         self.downloader = YoutubeDownloader(YT_VIDEO_DIR, RegDomainFn, YT_THUMBNAIL_DIR, http_client)

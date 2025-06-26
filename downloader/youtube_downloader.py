@@ -13,28 +13,30 @@ from utils.image_utils import convert_to_webp
 RegDomainFn = Callable[[str], str]
 
 class YoutubeDownloader(Downloader):
+    PLATFORM = "youtube"
     
     def __init__(
         self,
         video_dir: Path,
-        reg_domain: RegDomainFn,
         thumb_dir: Optional[Path] = None,
-        http_client: httpx.AsyncClient = None,
     ) -> None:
         self.video_dir = video_dir.expanduser()
         self.thumb_dir = (thumb_dir or (video_dir / "thumbnails")).expanduser()
         
-        self.extractor = reg_domain
-        self._http_client = http_client
-        
         self.video_dir.mkdir(parents=True, exist_ok=True)
         self.thumb_dir.mkdir(parents=True, exist_ok=True)
 
+    async def _fetch_bytes(self, url: str) -> Optional[bytes]:
+        async with httpx.AsyncClient() as client:
+            r = await client.get(url)
+            if r.status_code == 200:
+                return r.content
+        return None
     async def thumbnail_download(self, url: str):
-        r = await self._http_client.get(url)
-        if r.status_code != 200:
-            return None
-        return await asyncio.to_thread(convert_to_webp, r.content)
+        data = await self._fetch_bytes(url)
+        if data:
+            return await asyncio.to_thread(convert_to_webp, data)
+        return None
 
 
     async def download(self, url: str) -> DownloadResult:
@@ -64,7 +66,7 @@ class YoutubeDownloader(Downloader):
                 thumbnail_filepath.write_bytes(thumb_bytes)
 
         return DownloadResult({
-            "platform": self.extractor(url),
+            "platform": self.PLATFORM,
             "title": info["title"],
             "files": [FileInfo(filename=filename, filepath=filepath)],
             "metadata": {
@@ -101,7 +103,7 @@ class YoutubeDownloader(Downloader):
                 with open(thumbnail_filepath, "wb") as f:
                     f.write(content)
         return DownloadResult({
-            "platform": self.extractor(url),
+            "platform": self.PLATFORM,
             "title": info["title"],
             "files": [FileInfo(filename=filename, filepath=filepath)],
             "metadata": {

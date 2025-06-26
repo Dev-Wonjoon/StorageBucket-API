@@ -13,14 +13,18 @@ suffix_list_urls = () if _snapshot_path else None
 
 class DomainExtractor:
     
-    def __init__(self, cache_dir: str | Path) -> None:
-        cache_dir = Path(cache_dir).expanduser() / ".tld_cache"
+    def __init__(self, cache_dir: str | Path | None = None) -> None:
+        
+        if cache_dir is None:
+            cache_dir = Path.cwd() / ".tld_cache"
+        
+        cache_dir = Path(cache_dir).expanduser()
         cache_dir.mkdir(parents=True, exist_ok=True)
         
         self._extract = tldextract.TLDExtract(
             cache_dir=str(cache_dir),
             suffix_list_urls=suffix_list_urls,
-            fallback_to_snapshot=bool(_snapshot_path),
+            fallback_to_snapshot=True,
             include_psl_private_domains=False,
         )
         
