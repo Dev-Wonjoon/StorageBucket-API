@@ -1,24 +1,35 @@
 from abc import ABC, abstractmethod
-from sqlalchemy.ext.asyncio import AsyncSession
-from typing import TypedDict, NotRequired, Any, List, Dict
-from enum import Enum
-from typing_extensions import NotRequired
+from pathlib import Path
+from typing import Generic, Any, List, Dict, TypeVar
+
+from pydantic import BaseModel, Field
 
 
-class FileInfo(TypedDict):
+class FileInfo(BaseModel):
     filename: str
-    filepath: str
+    filepath: Path
+    
+    model_config = {
+        "json_encoders": {Path: str},
+        "frozen": True,
+    }
 
 
-class DownloadResult(TypedDict):
+MetaT = TypeVar("MetaT", bound=dict[str, Any] | None)
+
+class DownloadResult(BaseModel, Generic[MetaT]):
     platform: str
     files: List[FileInfo]
-    metadata: NotRequired[Dict[str, Any]]
+    metadata: MetaT = None
+    
+    model_config = {
+        "json_encoders": {Path: str},
+    }
 
 
-class Downloader(ABC):
+class Downloader(ABC, Generic[MetaT]):
 
     @abstractmethod
     async def download(
-        self, url:str, session: AsyncSession
+        self, url:str
     ) -> DownloadResult: ...

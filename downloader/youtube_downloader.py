@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Callable, Optional, Any
 
 from downloader.base import Downloader, FileInfo, DownloadResult
-from utils.youtube_utils import YtOptsBuilder, VideoContainer, VideoCodec, AudioCodec, AudioQuality
+from utils.youtube_utils import YtOptsBuilder, VideoContainer
 from utils.image_utils import convert_to_webp
 
 RegDomainFn = Callable[[str], str]
@@ -18,22 +18,22 @@ class YoutubeDownloader(Downloader):
         self,
         video_dir: Path,
         reg_domain: RegDomainFn,
-        thumb_dir: Path,
-        http_client: Optional[httpx.AsyncClient] = None
+        thumb_dir: Optional[Path] = None,
+        http_client: httpx.AsyncClient = None,
     ) -> None:
-        self.video_dir = Path(video_dir).expanduser()
-        self.thumb_dir = Path(thumb_dir or (video_dir / "thumbnails")).expanduser()
+        self.video_dir = video_dir.expanduser()
+        self.thumb_dir = (thumb_dir or (video_dir / "thumbnails")).expanduser()
         
-        self.extractor = RegDomainFn
+        self.extractor = reg_domain
+        self._http_client = http_client
         
         self.video_dir.mkdir(parents=True, exist_ok=True)
         self.thumb_dir.mkdir(parents=True, exist_ok=True)
 
     async def thumbnail_download(self, url: str):
-        async with httpx.AsyncClient(timeout=10) as client:
-            r = await client.get(url)
-            if r.status_code != 200:
-                return None
+        r = await self._http_client.get(url)
+        if r.status_code != 200:
+            return None
         return await asyncio.to_thread(convert_to_webp, r.content)
 
 
@@ -48,26 +48,20 @@ class YoutubeDownloader(Downloader):
             .merge_output(VideoContainer.mp4)
             .build()
         }
-
-        def _download():
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                return ydl.extract_info(url, download=True)
         
-        info = await asyncio.to_thread(_download)
+        info = await asyncio.to_thread(
+            lambda: yt_dlp.YoutubeDL(ydl_opts).extract_info(url, download=True))
         title = f"{info['title']}_{unique_id}"
         filename = f"{title}.{info.get('ext', 'mp4')}"
         filepath = self.video_dir / filename
 
-        thumbnail_url = info.get("thumbnail")
-        thumbnail_filename = None
-        thumbnail_filepath = None
-        if thumbnail_url:
-            content = await self.thumbnail_download(thumbnail_url)
-            if content:
-                thumbnail_filename = f"{title}.jpg"
+        thumbnail_filename = Optional[str] = None
+        thumbnail_filepath = Optional[Path] = None
+        if (thumbnail_url := info.get('thumbnail')):
+            if (thumb_bytes := await self.thumbnail_download(thumbnail_url)):
+                thumbnail_filename = f"{title}.webp"
                 thumbnail_filepath = self.thumb_dir / thumbnail_filename
-                with open(thumbnail_filepath, "wb") as f:
-                    f.write(content)
+                thumbnail_filepath.write_bytes(thumb_bytes)
 
         return DownloadResult({
             "platform": self.extractor(url),
