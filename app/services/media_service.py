@@ -1,16 +1,16 @@
-import os, uuid
-from typing import List, Optional
+import os, uuid, aiofiles
+from pathlib import Path
+from typing import List, Optional, Sequence
 from fastapi import HTTPException, UploadFile
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from app.models.media import Media
 from app.services.tag_service import TagService
 from app.services.platform_service import PlatformService
-from core.database import get_session
-from core.config import Settings
+from core import settings
 
-settings = Settings()
-UPLOAD_DIR = os.path.join(settings.download_dir, "local")
+UPLOAD_DIR: Path = Path(settings.local_dir)
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 class MediaService:
     async def list_media(session: AsyncSession) -> List[Media]:
@@ -69,8 +69,6 @@ class MediaService:
         platform = await platform_service.get_or_create(platform_name, session)
         
         tags = [await TagService.get_or_create(name, session) for name in tag_names]
-        
-        os.makedirs(UPLOAD_DIR)
         
         created_media_list = []
         for file in files:

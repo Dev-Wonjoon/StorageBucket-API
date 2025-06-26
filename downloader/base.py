@@ -5,19 +5,13 @@ from enum import Enum
 from typing_extensions import NotRequired
 
 
-class Platform(str, Enum):
-    YOUTUBE = "youtube"
-    INSTAGRAM = "instagram"
-    LOCAL = "local"
-
-
 class FileInfo(TypedDict):
     filename: str
     filepath: str
-    platform: Platform
 
 
 class DownloadResult(TypedDict):
+    platform: str
     files: List[FileInfo]
     metadata: NotRequired[Dict[str, Any]]
 

@@ -1,24 +1,31 @@
 from fastapi import HTTPException
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
+from typing import Callable
 
 from app.models.media import Media
 from app.models.urls import Url
-from downloader.base import FileInfo, DownloadResult
-from downloader.youtube_downloader import YoutubeDownloader
 from app.services.platform_service import PlatformService
+from core import settings
+from downloader.base import DownloadResult
+from downloader.youtube_downloader import YoutubeDownloader
 from utils.time_utils import now_kst
 
+import httpx
+
+RegDomainFn = Callable[[str], str]
+YT_VIDEO_DIR = settings.yt_video_dir
+YT_THUMBNAIL_DIR = settings.yt_thumbnail_dir
+
+
 class YoutubeService:
-    def __init__(self):
-        self.ydl_opts = {
-            'format': 'best',
-            'outtmpl': '%(title)s.%(ext)s',
-            'noplaylist': True,
-            'quiet': True,
-            'merge_output_format': 'mp4',
-        }
-        self.downloader = YoutubeDownloader()
+    def __init__(
+        self,
+        *,
+        reg_domain: RegDomainFn,
+        http_client: httpx.AsyncClient,
+    ):
+        self.downloader = YoutubeDownloader(YT_VIDEO_DIR, RegDomainFn, YT_THUMBNAIL_DIR, http_client)
         self.platform_service = PlatformService()
 
     async def download_and_save(self, url: str, session: AsyncSession) -> DownloadResult:

@@ -25,6 +25,7 @@ class _Default:
     YT_VIDEO_DIR = "youtubes"
     YT_THUMBNAIL_DIR = "thumbnails"
     IG_DIR = "instagrams"
+    LOCAL_DIR = "local"
     
 
 class Settings(BaseSettings):
@@ -43,17 +44,18 @@ class Settings(BaseSettings):
     base_dir: ClassVar[Path] = _Default.BASE_DIR
     download_dir: Path = Field(
         default_factory=lambda: Path(
-            os.getenv("DOWNLOAD_DIR", _Default.DOWNLOAD_DIR)
-        ))
+            os.getenv("DOWNLOAD_DIR", _Default.DOWNLOAD_DIR)))
     yt_video_dir: Optional[Path] = None
     yt_thumbnail_dir: Optional[Path] = None
     ig_dir: Optional[Path] = None
+    local_dir: Optional[Path] = None
     
     @model_validator(mode="after")
     def _populate_subdir(self):
         self.yt_video_dir = self.yt_video_dir or self.download_dir / _Default.YT_VIDEO_DIR
         self.yt_thumbnail_dir = self.yt_thumbnail_dir or self.download_dir / _Default.YT_THUMBNAIL_DIR
         self.ig_dir = self.ig_dir or self.download_dir / _Default.IG_DIR
+        self.local_dir = self.local_dir or self.download_dir / _Default.LOCAL_DIR
         
         return self
     
