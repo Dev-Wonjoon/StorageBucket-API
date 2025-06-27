@@ -41,6 +41,9 @@ class Settings(BaseSettings):
     postgres_host: str = Field(default=_Default.PG_HOST, alias="PG_HOST")
     postgres_port: int = Field(default=_Default.PG_PORT, alias="PG_PORT")
     
+    meili_key: str = Field(alias="MEILI_MASTER_KEY")
+    meili_url: str = Field(alias="MEILI_URL")
+    
     base_dir: ClassVar[Path] = _Default.BASE_DIR
     download_dir: Path = Field(
         default_factory=lambda: Path(
