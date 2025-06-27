@@ -2,9 +2,8 @@ import re
 from fastapi import APIRouter, HTTPException, BackgroundTasks, Depends, Request
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
-from urllib.parse import urlparse
 from pydantic import BaseModel
-import uuid, httpx
+import uuid
 
 from app.models.urls import Url
 from app.services.instagram_services import InstagramService

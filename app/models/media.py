@@ -1,7 +1,7 @@
 from sqlmodel import SQLModel, Field, BigInteger, Column, Relationship
 from typing import Optional, List
 from datetime import datetime
-from utils.time_utils import now_kst
+from utils.app_utils import now_kst
 
 class MediaTag(SQLModel, table=True):
     __tablename__ = 'media_tag'
