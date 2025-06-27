@@ -2,7 +2,7 @@ from typing import Optional, List
 from sqlmodel import Field, SQLModel, Relationship
 from datetime import datetime
 from app.models.media import Media
-from utils.time_utils import now_kst
+from utils.app_utils import now_kst
 
 
 class Profile(SQLModel, table=True):
@@ -14,3 +14,4 @@ class Profile(SQLModel, table=True):
     medias: List[Media] = Relationship(back_populates="profile")
 
     updated_at: datetime = Field(default_factory=now_kst)
+    last_update: datetime = Field(default=None)

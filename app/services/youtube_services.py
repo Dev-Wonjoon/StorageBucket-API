@@ -9,7 +9,7 @@ from app.services.platform_service import PlatformService
 from core import settings
 from downloader.base import DownloadResult
 from downloader.youtube_downloader import YoutubeDownloader
-from utils.time_utils import now_kst
+from utils.app_utils import now_kst
 
 
 YT_VIDEO_DIR = settings.yt_video_dir

@@ -1,14 +1,14 @@
 import asyncio
 import yt_dlp
 import httpx
-import uuid
 
 from pathlib import Path
 from typing import Optional
 
 from downloader.base import Downloader, FileInfo, DownloadResult
-from utils.youtube_utils import YtOptsBuilder, VideoContainer
+from utils.app_utils import uuid_generator
 from utils.image_utils import convert_to_webp
+from utils.youtube_utils import YtOptsBuilder, VideoContainer
 
 class YoutubeDownloader(Downloader):
     PLATFORM = "youtube"
@@ -39,7 +39,7 @@ class YoutubeDownloader(Downloader):
 
     async def download(self, url: str) -> DownloadResult:
 
-        unique_id = uuid.uuid4().hex[:8]
+        unique_id = uuid_generator()
 
         ydl_opts = (
             YtOptsBuilder()
@@ -73,7 +73,7 @@ class YoutubeDownloader(Downloader):
             })
     
     async def download_audio(self, url: str) -> DownloadResult:
-        unique_id = uuid.uuid4().hex[:8]
+        unique_id = uuid_generator()
         ydl_opts = (
             YtOptsBuilder()
             .best_audio()

@@ -2,12 +2,14 @@ from typing import List
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from fastapi import HTTPException
+
 from app.models.profile import Profile
 from app.models.media import Media
 from app.models.urls import Url
 from app.services.platform_service import PlatformService
-from downloader.instagram_downloader import InstagramDownloader
-from downloader.base import DownloadResult, FileInfo
+from downloader.ig_downloader import InstagramDownloader
+from downloader.base import DownloadResult
+from utils.app_utils import now_kst
 
 class InstagramService:
     def __init__(self):
@@ -18,8 +20,8 @@ class InstagramService:
         self, url: str, session: AsyncSession
     ) -> DownloadResult:
         
-        url_obj = await session.scalar(select(Url).where(Url.url == url))
-        if url_obj:
+        existing = await session.scalar(select(Url).where(Url.url == url))
+        if existing:
             raise HTTPException(
                 status_code=409,
                 detail="이미 존재하는 URL입니다."
@@ -30,13 +32,10 @@ class InstagramService:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Instagram 다운로드 실패: {e}")
         
-        platform_name = result["platform"].value
-        files: list[FileInfo] = result["files"]
-        metadata = result.get("metadata", {})
-
+        metadata = result.metadata or {}
         owner_id = metadata.get("owner_id")
         owner_name = metadata.get("owner_name")
-        caption = metadata.get(("caption")or "").strip()
+        caption = (metadata.get("caption") or "").strip() or None
 
         if owner_id is None:
             raise HTTPException(status_code=500, detail="owner id 정보가 없습니다.")
@@ -52,31 +51,31 @@ class InstagramService:
             profile.owner_name = owner_name
             session.add(profile)
 
-        platform = await self.platform_service.get_or_create(platform_name, session)
+        platform = await self.platform_service.get_or_create(result.platform, session)
         
-        is_new_url = False
-        if url_obj is None:
-            url_obj = Url(url=url)
-            session.add(url_obj)
-            await session.commit()
-            await session.refresh(url_obj)
-            is_new_url = True
+        url_obj = Url(url=url)
+        session.add(url_obj)
+        await session.commit()
+        await session.refresh(url_obj)
 
-        if is_new_url:
-            for f_info in files:
-                title = caption if caption else f_info["filename"]
-
-                media = Media(
-                    platform=platform,
-                    filepath=f_info["filepath"],
-                    filename=f_info["filename"],
-                    title=title,
-                    owner_id=owner_id,
-                    owner_name=owner_name,
-                    url_id=url_obj.id
-                )
-                session.add(media)
-            await session.commit()
+        media_obj = []
+        for file in result.files:
+            title = caption or file.filename
+            media = Media(
+                platform_id=platform.id,
+                filepath=str(file.filepath),
+                filename=file.filename,
+                title=title,
+                owner_id=owner_id,
+                owner_name=owner_name,
+                url_id=url_obj.id,
+                created_at=now_kst()
+            )
+            session.add(media)
+            media_obj.append(media)
+        await session.commit()
+        for media in media_obj:
+            await session.refresh(media)
         return result
     
 
