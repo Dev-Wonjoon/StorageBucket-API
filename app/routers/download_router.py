@@ -16,13 +16,10 @@ from utils.domain_extractor import DomainExtractor
 router = APIRouter(prefix="/api/download", tags=["download"])
 
 URL_SERVICE_MAP = {
-    r"(?:^|\.)instagram\.com$": InstagramService,
-    r"(?:^|\.)(?:youtube\.com|youtu\.be)$": YoutubeService
+    r"(?:^|\.)(?:instagram|instagr)\.(?:com|am)$": InstagramService,
+    r"(?:^|\.)(?:youtube|youtu)(?:\.(?:com|be))?$": YoutubeService
 }
 
-
-async def get_http_client(request: Request) -> httpx.AsyncClient:
-    return request.app.state.http_client
 
 async def get_extractor(request: Request) -> DomainExtractor:
     return request.app.state.tld_extractor
@@ -35,13 +32,12 @@ async def download_url(
     request: DownloadRequest,
     background_tasks: BackgroundTasks,
     session: AsyncSession = Depends(get_session),
-    client: httpx.AsyncClient = Depends(get_http_client),
     extractor: DomainExtractor = Depends(get_extractor)
 ):
     domain = extractor.extract_domain(request.url)
     
     for pattern, service_cls in URL_SERVICE_MAP.items():
-        if re.search(pattern, domain):
+        if re.search(pattern, str(domain)):
             exists = await session.scalar(select(Url).where(Url.url == request.url))
             if exists:
                 raise HTTPException(

@@ -11,9 +11,7 @@ from downloader.base import DownloadResult
 from downloader.youtube_downloader import YoutubeDownloader
 from utils.time_utils import now_kst
 
-import httpx
 
-RegDomainFn = Callable[[str], str]
 YT_VIDEO_DIR = settings.yt_video_dir
 YT_THUMBNAIL_DIR = settings.yt_thumbnail_dir
 
@@ -21,10 +19,8 @@ YT_THUMBNAIL_DIR = settings.yt_thumbnail_dir
 class YoutubeService:
     def __init__(
         self,
-        *,
-        http_client: httpx.AsyncClient,
     ):
-        self.downloader = YoutubeDownloader(YT_VIDEO_DIR, RegDomainFn, YT_THUMBNAIL_DIR, http_client)
+        self.downloader = YoutubeDownloader(YT_VIDEO_DIR, YT_THUMBNAIL_DIR)
         self.platform_service = PlatformService()
 
     async def download_and_save(self, url: str, session: AsyncSession) -> DownloadResult:
@@ -35,9 +31,9 @@ class YoutubeService:
         
         try:
             result: DownloadResult = await self.downloader.download(url)
-            title = result.get("title")
-            files = result.get("files", [])
-            metadata = result.get("metadata", {})
+            title = result.title
+            files = result.files
+            metadata = result.metadata
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"다운로드 중 오류가 발생했습니다: {e}")
         
@@ -63,9 +59,9 @@ class YoutubeService:
                 title=title,
                 url_id=url_obj.id,
                 platform_id=platform.id,
-                thumbnail_path=thumbnail_path,
-                filepath=file.get("filepath"),
-                filename=file.get("filename"),
+                thumbnail_path=str(thumbnail_path) if thumbnail_path else None,
+                filepath=str(file.filepath),
+                filename=file.filename,
                 thumbnail_id=thumbnail.id if thumbnail else None,
                 created_at=now_kst(),
             )
@@ -74,7 +70,5 @@ class YoutubeService:
         await session.commit()
         for media in media_obj:
             await session.refresh(media)
-        
-        print(f"Media objects: {media_obj}")
         
         return result

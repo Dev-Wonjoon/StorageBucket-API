@@ -219,9 +219,6 @@ $RECYCLE.BIN/
 *.db
 
 downloads/
-
 test.py
-
 tests/
-
-.tld*/
+.psl*/

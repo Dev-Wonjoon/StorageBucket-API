@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Generic, Any, List, Dict, TypeVar
+from typing import Generic, Any, List, TypeVar, Optional
 
 from pydantic import BaseModel, Field
 
@@ -18,6 +18,7 @@ class FileInfo(BaseModel):
 MetaT = TypeVar("MetaT", bound=dict[str, Any] | None)
 
 class DownloadResult(BaseModel, Generic[MetaT]):
+    title: Optional[str]
     platform: str
     files: List[FileInfo]
     metadata: MetaT = None

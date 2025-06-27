@@ -15,14 +15,13 @@ class DomainExtractor:
     
     def __init__(self, cache_dir: str | Path | None = None) -> None:
         
-        if cache_dir is None:
-            cache_dir = Path.cwd() / ".tld_cache"
+        base = Path(cache_dir) if cache_dir is not None else Path.cwd() / "tld_cache"
+        final_cache_dir = (base / '.psl_cache').expanduser()
         
-        cache_dir = Path(cache_dir).expanduser()
-        cache_dir.mkdir(parents=True, exist_ok=True)
+        final_cache_dir.mkdir(parents=True, exist_ok=True)
         
         self._extract = tldextract.TLDExtract(
-            cache_dir=str(cache_dir),
+            cache_dir=str(final_cache_dir),
             suffix_list_urls=suffix_list_urls,
             fallback_to_snapshot=True,
             include_psl_private_domains=False,
