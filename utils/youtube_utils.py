@@ -38,6 +38,10 @@ class YtOptsBuilder:
             "noplaylist": True,
             "quiet": True
         }
+        
+    def with_extractor(self, extractor_name: str) -> 'YtOptsBuilder':
+        self._opts.setdefault('extractor_args', {})[extractor_name] = []
+        return self
     
     def outtmpl(self, template: str) -> "YtOptsBuilder":
         self._opts["outtmpl"] = str(template)
