@@ -8,7 +8,7 @@ from typing import Optional
 from downloader.base import Downloader, FileInfo, DownloadResult
 from utils.app_utils import uuid_generator
 from utils.image_utils import convert_to_webp
-from utils.youtube_utils import YtOptsBuilder, VideoContainer
+from utils.ytdlp_utils import YtOptsBuilder, VideoContainer
 
 class YoutubeDownloader(Downloader):
     PLATFORM = "youtube"

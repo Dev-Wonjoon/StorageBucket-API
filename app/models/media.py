@@ -24,7 +24,7 @@ class Media(SQLModel, table=True):
     created_at: datetime = Field(default_factory=now_kst)
     updated_at: datetime = Field(default_factory=now_kst)
     
-    platform: Optional["Platform"] = Relationship(back_populates="medias")
-    url: Optional["Url"] = Relationship(back_populates="medias")
-    profile: Optional["Profile"] = Relationship(back_populates="medias")
-    tags: List["Tag"] = Relationship(back_populates="media", link_model=MediaTag)
+    platform: Optional["Platform"] = Relationship(back_populates="medias") # type: ignore
+    url: Optional["Url"] = Relationship(back_populates="medias") # type: ignore
+    profile: Optional["Profile"] = Relationship(back_populates="medias") # type: ignore
+    tags: List["Tag"] = Relationship(back_populates="media", link_model=MediaTag) # type: ignore

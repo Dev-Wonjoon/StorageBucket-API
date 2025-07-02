@@ -3,7 +3,7 @@ from pathlib import Path
 from pydantic import BaseModel
 from typing import Generic, Any, List, TypeVar, Optional
 
-from utils.app_utils import uuid_generator
+from utils.app_utils import uuid_generator, safe_string
 from utils.image_utils import convert_to_webp
 
 import asyncio, httpx, re
@@ -70,13 +70,12 @@ class GenericDownloader(Generic[MetaT]):
     def __init__(
         self,
         extractor: Extractor[MetaT],
-        video_dir: Path,
-        thumb_dir: Optional[Path] = None,
+        root_dir: Path,
     ):
         self.extractor = extractor
-        self.video_dir = video_dir
-        self.thumb_dir = thumb_dir
-        self.video_dir.mkdir(parents=True, exist_ok=True)
+        self.platform_dir = (root_dir / self.PLATFORM).expanduser()
+        self.thumb_dir = self.platform_dir / "thumbnails"
+        self.platform_dir.mkdir(parents=True, exist_ok=True)
         self.thumb_dir.mkdir(parents=True, exist_ok=True)
         
     async def _fetch_bytes(self, url: str) -> Optional[bytes]:

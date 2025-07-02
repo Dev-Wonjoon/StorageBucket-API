@@ -16,7 +16,7 @@ router = APIRouter(prefix="/api/download", tags=["download"])
 
 URL_SERVICE_MAP = {
     r"(?:^|\.)(?:instagram|instagr)\.(?:com|am)$": InstagramService,
-    r"(?:^|\.)(?:youtube|youtu)(?:\.(?:com|be))?$": YoutubeService
+    r"(?:^|\.)(?:youtube|youtu)(?:\.(?:com|be))?$": YoutubeService,
 }
 
 

@@ -3,8 +3,8 @@ import asyncio, yt_dlp, re
 from typing import Any, Dict, Optional
 
 from downloader.base import DownloadResult, FileInfo, GenericDownloader, Extractor, ExtractionResult
-from utils.app_utils import uuid_generator
-from utils.youtube_utils import YtOptsBuilder, VideoContainer
+from utils.app_utils import uuid_generator, safe_string
+from utils.ytdlp_utils import YtOptsBuilder, VideoContainer
 
 class SoopExtractor(Extractor[Dict[str, Any]]):
     
@@ -35,15 +35,15 @@ class SoopExtractor(Extractor[Dict[str, Any]]):
 class SoopDownloader(GenericDownloader[Dict[str, Any]]):
     PLATFORM = "soop"
     
-    def __init__(self, extractor, video_dir, thumb_dir = None):
-        super().__init__(SoopExtractor(), video_dir, thumb_dir)
+    def __init__(self, platform_dir, thumb_dir = None):
+        super().__init__(SoopExtractor(), platform_dir, thumb_dir)
         
     async def download(self, url: str) -> DownloadResult[Dict[str, Any]]:
         extracted = await self.extractor.extract(url)
         
         uid = uuid_generator()
-        safe_title = re.sub(r"[\\/:*?\"<>|]", "_", extracted.title)
-        outtmpl = str(self.video_dir / f"{safe_title}_{uid}.%(ext)s")
+        safe_title = safe_string(extracted.title)
+        outtmpl = str(self.platform_dir / f"{safe_title}_{uid}.%(ext)s")
         
         ydl_opts = (
             YtOptsBuilder()
@@ -57,7 +57,7 @@ class SoopDownloader(GenericDownloader[Dict[str, Any]]):
         loop = asyncio.get_running_loop()
         await loop.run_in_executor(None, lambda: yt_dlp.YoutubeDL(ydl_opts).download([url]))
         
-        save_files = list(self.video_dir.glob(f"{safe_title}_{uid}.*"))
+        save_files = list(self.platform_dir.glob(f"{safe_title}_{uid}.*"))
         filepath = save_files[0] if save_files else None
         
         thumb_filename, thumb_filepath = await self._save_thumbnail(

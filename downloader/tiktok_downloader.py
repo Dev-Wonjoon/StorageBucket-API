@@ -4,9 +4,9 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 from downloader.base import FileInfo, DownloadResult, GenericDownloader, Extractor, ExtractionResult
-from utils.app_utils import uuid_generator
+from utils.app_utils import uuid_generator, safe_string
 from utils.image_utils import convert_to_webp
-from utils.youtube_utils import YtOptsBuilder, VideoContainer
+from utils.ytdlp_utils import YtOptsBuilder, VideoContainer
 
 
 class TiktokExtractor(Extractor[Dict[str, Any]]):
@@ -38,15 +38,15 @@ class TiktokExtractor(Extractor[Dict[str, Any]]):
 class TiktokDownloader(GenericDownloader[Dict[str, Any]]):
     PLATFORM = "Tiktok"
     
-    def __init__(self, extractor, video_dir, thumb_dir = None):
-        super().__init__(extractor, video_dir, thumb_dir)
+    def __init__(self, platform_dir):
+        super().__init__(TiktokExtractor(), platform_dir)
         
     async def download(self, url: str) -> DownloadResult[Dict[str, Any]]:
         extracted = await self.extractor.extract(url)
         
         uid = uuid_generator()
-        safe_title = re.sub(r'[\\/:*?"<>|]', "_", extracted.title)
-        outtmpl = self.video_dir / f"{safe_title}_{uid}.%(ext)s"
+        safe_title = safe_string(extracted.title)
+        outtmpl = self.platform_dir / f"{safe_title}_{uid}.%(ext)s"
         
         ydl_opts = (
             YtOptsBuilder()
@@ -63,7 +63,7 @@ class TiktokDownloader(GenericDownloader[Dict[str, Any]]):
             lambda: yt_dlp.YoutubeDL(ydl_opts).download(url)
         )
         
-        saved_files = list(self.video_dir.glob(f"{safe_title}_{uid}.*"))
+        saved_files = list(self.platform_dir.glob(f"{safe_title}_{uid}.*"))
         file_path = saved_files[0] if saved_files else None
         
         thumb_filename, thumb_path = await self._save_thumbnail(

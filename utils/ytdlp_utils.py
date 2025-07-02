@@ -99,26 +99,3 @@ class YtOptsBuilder:
         
     def build(self) -> Dict[str, Any]:
         return self._opts.copy()
-    
-
-class ProgressTracker:
-    """
-    percent_q : asyncio.Queue[float]  - 0.0~100.0 진행률 이벤트
-    file_future: asyncio.Future[pathlib.Path] - 다운로드 완료 후 최종 파일 경로
-    """
-    
-    def __init__(self, loop: asyncio.AbstractEventLoop):
-        self.loop = loop
-        self.persent_q: asyncio.Queue[float] = asyncio.Queue()
-        self.file_future: asyncio.Future[Path] = loop.create_future()
-        
-    def __call__(self, d: Dict[str, Any]) -> None:
-        if d.get("status") == "downloading":
-            total = d.get("total_bytes") or d.get("total_bytes_estimate")
-            if  total:
-                pct = d["downloaded_bytes"] / total * 100
-                self.loop.call_soon_threadsafe(self.persent_q.put_nowait, pct)
-        
-        elif d.get("status") == "finished" and d.get("filename"):
-            fp = Path(d["filename"])
-            self.loop.call_soon_threadsafe(self.file_future.set_result, fp)

@@ -12,9 +12,9 @@ import re, asyncio
 class InstagramDownloader(Downloader):
     PLATFORM = "instagram"
     
-    def __init__(self, media_dir: Path):
-        self.media_dir = media_dir
-        self.media_dir.mkdir(parents=True, exist_ok=True)
+    def __init__(self, platform_dir: Path):
+        self.platform_dir = platform_dir
+        self.platform_dir.mkdir(parents=True, exist_ok=True)
 
     def _create_loader(self, target_dir: Path, prefix: str) -> Instaloader:
         loader = Instaloader(
@@ -34,7 +34,7 @@ class InstagramDownloader(Downloader):
         ]
         
     def _prepare_target(self, subdir: str) -> Path:
-        dest = self.media_dir / subdir
+        dest = self.platform_dir / subdir
         
     async def download(self, url: str) -> DownloadResult:
         parsed = urlparse(url)
