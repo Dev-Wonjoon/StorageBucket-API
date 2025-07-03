@@ -6,7 +6,7 @@ from typing import Dict, Any, Optional
 from downloader.base import DownloadResult, Extractor, ExtractionResult, FileInfo, GenericDownloader
 from utils.app_utils import uuid_generator, safe_string
 from utils.image_utils import convert_to_webp
-from utils.youtube_utils import YtOptsBuilder, VideoContainer
+from utils.ytdlp_utils import YtOptsBuilder, VideoContainer
 
 
 class XExtractor(Extractor[Dict[str, Any]]):

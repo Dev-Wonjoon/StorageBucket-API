@@ -38,7 +38,6 @@ class Downloader(ABC, Generic[MetaT]):
         self, url:str
     ) -> DownloadResult: ...
 
-MetaT = TypeVar("MetaT", bound=dict[str, Any] | None)
 
 class ExtractionResult(Generic[MetaT]):
     """다운로드 전, 메타데이터까지 얻어오는 결과"""
@@ -92,12 +91,13 @@ class GenericDownloader(Generic[MetaT]):
         if not data:
             return None, None
         webp = await asyncio.to_thread(convert_to_webp, data)
-        safe_title = re.sub(r'[\\/:*?"<>|]', "_", title)
+        safe_title = safe_string(title)
         filename = f"{safe_title}_{uid}.webp"
         filepath = self.thumb_dir / filename
         filepath.write_bytes(webp)
         
         return filename, filepath
+    
         
     
     async def download(self, url: str) -> DownloadResult[MetaT]:

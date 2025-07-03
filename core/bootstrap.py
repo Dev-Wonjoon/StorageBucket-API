@@ -5,7 +5,6 @@ from fastapi.staticfiles import StaticFiles
 from fastapi import FastAPI
 from pathlib import Path
 
-
 from app.routers import ALL_ROUTERS
 from core import settings
 from core.database import init_db
