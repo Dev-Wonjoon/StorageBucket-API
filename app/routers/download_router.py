@@ -6,7 +6,8 @@ from pydantic import BaseModel
 import uuid
 
 from app.models.urls import Url
-from app.services.instagram_services import InstagramService
+from app.services.instagram_service import InstagramService
+from app.services.soop_service import SoopService
 from app.services.youtube_services import YoutubeService
 from core.database import get_session
 from core.tasks import schedule_download
