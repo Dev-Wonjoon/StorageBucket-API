@@ -15,8 +15,8 @@ def schedule_download(
         import asyncio
         async def _run():
             async with AsyncSessionLocal() as session:
-                service = service_cls()
-                await service.download_and_save(url, session)
+                service = service_cls(session)
+                await service.handle(url)
         
         asyncio.run(_run())
     background_tasks.add_task(_job)

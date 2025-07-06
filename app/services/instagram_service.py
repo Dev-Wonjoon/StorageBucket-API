@@ -9,10 +9,10 @@ from core.unit_of_work import unit_of_work
 from downloader.base import DownloadResult
 from downloader.ig_downloader import InstagramDownloader
 
-from .base_media_service import BaseMediaService
+from .base_media_service import AbstractMediaService
 
 
-class InstagramService(BaseMediaService):
+class InstagramService(AbstractMediaService):
     PLATFORM_NAME = "instagram"
     
     def __init__(self, session: AsyncSession):

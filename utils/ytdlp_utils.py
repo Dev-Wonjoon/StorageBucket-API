@@ -65,6 +65,7 @@ class YtOptsBuilder:
     
     def add_postprocessor(self, pp: dict) -> "YtOptsBuilder":
         self._opts.setdefault("postprocessor", []).append(pp)
+        return self
     
     def merge_output(self, fmt: VideoContainer) -> "YtOptsBuilder":
         self._opts["merge_output_format"] = fmt.value

@@ -11,7 +11,7 @@ from core.unit_of_work import unit_of_work
 from downloader.base import DownloadResult, FileInfo
 
 
-class BaseMediaService(ABC):
+class AbstractMediaService(ABC):
     """
     1) URL 처리 → 2) 다운로드 실행 → 3) Media 저장
     의 공통 시나리오를 제공하는 템플릿 서비스.
@@ -41,8 +41,8 @@ class BaseMediaService(ABC):
             
             repo = MediaRepository(tx)
             await repo.add_medias(
-                platform_id=result.platform_id,
                 files=result.files,
+                platform=result.platform,
                 url_id=url_obj.id,
                 owner_id=result.owner_id,
                 owner_name=result.owner_name,

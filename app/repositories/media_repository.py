@@ -14,9 +14,9 @@ class MediaRepository:
         platform_id: int,
         files: Sequence[FileInfo],
         url_id: int,
-        owner_id: int | None,
-        owner_name: str | None,
-        caption: str | None,
+        caption: str | None = None,
+        owner_id: int | None = None,
+        owner_name: str | None = None,
     ) -> list[Media]:
         now = now_kst()
         objs = [
