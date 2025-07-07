@@ -4,7 +4,6 @@ from typing import Any, Dict, Optional
 
 from downloader.models import FileInfo, DownloadResult, ExtractionResult
 from downloader.interfaces import Downloader, Extractor
-from downloader.generic_extractor import GenericExtractor
 from utils.app_utils import safe_string, uuid_generator
 from utils.image_utils import convert_to_webp
 from utils.ytdlp_utils import YtOptsBuilder, VideoContainer
@@ -20,7 +19,7 @@ class GenericDownloader(Downloader[Dict[str, Any]]):
         self,
         *,
         platform: str,
-        download_dir: Path,
+        root_dir: Path,
         extractor: Optional[Extractor[Dict[str, Any]]] = None,
         http_client: Optional[httpx.AsyncClient] = None,
     ):
@@ -28,7 +27,7 @@ class GenericDownloader(Downloader[Dict[str, Any]]):
         self.extractor = extractor or GenericExtractor(self.platform)
         self.http = http_client or httpx.AsyncClient(timeout=10)
         
-        self.platform_dir = _ensure_dir(download_dir.expanduser() / self.platform)
+        self.platform_dir = _ensure_dir(root_dir.expanduser()/ "downloads" / self.platform)
         self.thumbnail_dir = _ensure_dir(self.platform_dir / "thumbnails")
         
     async def download(self, url: str) -> DownloadResult:
@@ -36,11 +35,11 @@ class GenericDownloader(Downloader[Dict[str, Any]]):
         
         uid = uuid_generator()
         video_info = await self._download_video(meta, uid)
-        thumbnail_filename, thumbnail_filepath = self._handle_thumbnail(meta.thumbnail_url, meta.title, uid)
+        thumbnail_info = await self._handle_thumbnail(meta.thumbnail_url, meta.title, uid)
         
         files = [video_info]
-        if thumbnail_filepath:
-            files.append(FileInfo(filename=thumbnail_filename, filepath=thumbnail_filepath))
+        if thumbnail_info:
+            files.append(FileInfo(filename=thumbnail_info.filename, filepath=thumbnail_info.filepath))
         
         return DownloadResult(
             title=meta.title,
@@ -74,7 +73,7 @@ class GenericDownloader(Downloader[Dict[str, Any]]):
 
     async def _handle_thumbnail(
         self, url: Optional[str], title: str, uid: str
-    ):
+    ) -> Optional[FileInfo]:
         if not url:
             return None, None
         data = await self._fetch(url)
@@ -82,11 +81,40 @@ class GenericDownloader(Downloader[Dict[str, Any]]):
             return None, None
 
         webp = await asyncio.to_thread(convert_to_webp, data)
-        fn = self._build_filename(title, uid, "webp")
-        path = self.thumb_dir / fn
-        path.write_bytes(webp)
-        return fn, path
+        filename = self._build_filename(title, uid, "webp")
+        filepath = self.thumbnail_dir / filename
+        filepath.write_bytes(webp)
+        return FileInfo(filename=filename, filepath=filepath)
 
     async def _fetch(self, url: str) -> Optional[bytes]:
         resp = await self.http.get(url)
         return resp.content if resp.status_code == 200 else None
+
+
+class GenericExtractor(Extractor[Dict[str, Any]]):
+    def __init__(self, platform_name: str) -> None:
+        ydl_opts = (
+            YtOptsBuilder().with_extractor(platform_name).build()
+        )
+        ydl_opts["skip_download"] = True
+        ydl_opts.update(
+            {
+                "extractor_args": {platform_name: []}
+            }
+        )
+        self._opts = ydl_opts
+        
+    async def extract(self, url: str) -> ExtractionResult[Dict[str, Any]]:
+        def _probe() -> Dict[str, Any]:
+            with yt_dlp.YoutubeDL(self._opts) as ydl:
+                return ydl.extract_info(url, download=False)
+        
+        info = await asyncio.to_thread(_probe)
+        
+        return ExtractionResult(
+            title=info.get("title") or "video",
+            video_url=url,
+            ext=info.get("ext", "mp4"),
+            thumbnail_url=info.get("thumbnail"),
+            metadata=info,
+        )

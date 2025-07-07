@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 from sqlmodel.ext.asyncio.session import AsyncSession
 from app.models.media import Media
-from downloader.base import FileInfo
+from downloader.models import FileInfo
 from utils.app_utils import now_kst
 
 class MediaRepository:
@@ -19,16 +19,25 @@ class MediaRepository:
         owner_name: str | None = None,
     ) -> list[Media]:
         now = now_kst()
+        common = {
+            "platform_id": platform_id,
+            "url_id": url_id,
+            "created_at": now
+        }
+        optional = {k: v for k, v in{
+            "owner_id": owner_id,
+            "owner_name": owner_name,
+            "caption": caption
+        }.items() if v is not None}
+        
         objs = [
             Media(
-                platform_id=platform_id,
+                **common,
+                **optional,
                 filepath=str(f.filepath),
                 filename=f.filename,
+                filesize=f.filesize,
                 title=caption or f.filename,
-                owner_id=owner_id,
-                owner_name=owner_name,
-                url_id=url_id,
-                created_at=now,
             )
             for f in files
         ]

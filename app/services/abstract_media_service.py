@@ -2,13 +2,13 @@ from abc import ABC, abstractmethod
 from fastapi import HTTPException
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
-from typing import Sequence
+from typing import Any, Dict, Optional
 
 from app.repositories.media_repository import MediaRepository
 from app.models.platform import Platform
 from core.exception import DuplicateUrlError
 from core.unit_of_work import unit_of_work
-from downloader.base import DownloadResult, FileInfo
+from downloader.models import DownloadResult, FileInfo
 
 
 class AbstractMediaService(ABC):
@@ -36,17 +36,22 @@ class AbstractMediaService(ABC):
         
         result: DownloadResult = await self._download(url)
         
+        metadata: Dict[str, Any] = result.metadata or {}
+        caption: Optional[str] = metadata.get("caption")
+        owner_id: Optional[int] = metadata.get("owner_id")
+        owner_name: Optional[str] = metadata.get("owner_name")
+        
         async with unit_of_work(self.session) as tx:
             await tx.flush()
             
             repo = MediaRepository(tx)
             await repo.add_medias(
                 files=result.files,
-                platform=result.platform,
+                platform_id= await self._get_platform_id(),
                 url_id=url_obj.id,
-                owner_id=result.owner_id,
-                owner_name=result.owner_name,
-                caption=result.caption,
+                owner_id=owner_id,
+                owner_name=owner_name,
+                caption=caption,
             )
             
             return result
@@ -64,7 +69,7 @@ class AbstractMediaService(ABC):
             return self._platform_id
         
         stmt = select(Platform.id).where(Platform.name == self.PLATFORM_NAME)
-        platform = await self.session.exec(stmt).scalar_one_or_none()
+        platform: Platform | None = (await self.session.exec(stmt)).first()
         
         if platform is None:
             platform = Platform(name=self.PLATFORM_NAME)

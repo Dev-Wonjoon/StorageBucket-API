@@ -2,11 +2,11 @@ from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.models.urls import Url
-from app.services.base_media_service import AbstractMediaService
+from app.services.abstract_media_service import AbstractMediaService
 from core.exception import DuplicateUrlError
 from core.config import Settings
 from downloader.interfaces import DownloadResult
-from downloader.generic_downloader import GenericDownloader
+from downloader.generic import GenericDownloader
 
 
 class YoutubeService(AbstractMediaService):
@@ -15,7 +15,7 @@ class YoutubeService(AbstractMediaService):
     
     def __init__(self, session: AsyncSession) -> None:
         super().__init__(session)
-        self.downloader = GenericDownloader(platform=self.PLATFORM_NAME, root_dir=Settings().download_dir,extractor=None)
+        self.downloader = GenericDownloader(platform=self.PLATFORM_NAME, root_dir=Settings().base_dir, extractor=None)
         
         
     async def _get_or_create_url(self, url):

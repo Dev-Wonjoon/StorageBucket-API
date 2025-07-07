@@ -5,7 +5,8 @@ import httpx
 from pathlib import Path
 from typing import Optional
 
-from downloader.base import Downloader, FileInfo, DownloadResult
+from downloader.models import FileInfo, DownloadResult
+from downloader.interfaces import Downloader
 from utils.app_utils import uuid_generator
 from utils.image_utils import convert_to_webp
 from utils.ytdlp_utils import YtOptsBuilder, VideoContainer

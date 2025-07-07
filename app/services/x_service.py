@@ -9,14 +9,14 @@ from app.models.media import Media
 from app.models.urls import Url
 from app.services.platform_service import PlatformService
 from core import settings
-from downloader.x_downloader import XDownloader
-from downloader.base import DownloadResult, FileInfo
+from downloader.generic import GenericDownloader
+from downloader.models import DownloadResult, FileInfo
 from utils.app_utils import now_kst
 
 
 class XService:
     def __init__(self) -> None:
-        self.downloader = XDownloader(settings.base_dir)
+        self.downloader = GenericDownloader(settings.base_dir)
         self.platform_service = PlatformService()
         
     

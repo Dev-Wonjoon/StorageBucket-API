@@ -9,15 +9,15 @@ from app.models.media import Media
 from app.models.urls import Url
 from app.services.platform_service import PlatformService
 from core import settings
-from downloader.soop_downloader import SoopDownloader
-from downloader.base import DownloadResult, FileInfo
+from downloader.generic import GenericDownloader
+from downloader.models import DownloadResult, FileInfo
 from utils.app_utils import now_kst
 
 
 class SoopService:
     
     def __init__(self):
-        self.downloader = SoopDownloader(settings.base_dir)
+        self.downloader = GenericDownloader()
         self.platform_service = PlatformService()
         
     

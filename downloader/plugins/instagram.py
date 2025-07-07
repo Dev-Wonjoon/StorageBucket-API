@@ -3,7 +3,8 @@ from pathlib import Path
 from urllib.parse import urlparse
 from typing import List
 
-from .base import Downloader, DownloadResult, FileInfo
+from downloader.interfaces import Downloader, DownloadResult
+from downloader.models import FileInfo
 from utils.app_utils import uuid_generator
 
 import re, asyncio

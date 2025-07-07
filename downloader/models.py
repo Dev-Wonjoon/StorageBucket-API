@@ -1,6 +1,6 @@
 from pathlib import Path
 from typing import Any, Dict, Generic, List, Optional, TypeVar
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 MetaT = TypeVar("MetaT", bound=Optional[Dict[str, Any]])
 
@@ -8,6 +8,17 @@ MetaT = TypeVar("MetaT", bound=Optional[Dict[str, Any]])
 class FileInfo(BaseModel):
     filename: str
     filepath: Path
+    filesize: int | None = None
+    
+    @field_validator("filesize", mode="before", check_fields=False)
+    @classmethod
+    def auto_size(cls, v, values):
+        if v is not None:
+            return v
+        fp: Path | None = values.get("filepath")
+        if fp and fp.exists():
+            return fp.stat().st_size
+        return None
     
     model_config = {"json_encoders": {Path: str}, "frozen": True}
     

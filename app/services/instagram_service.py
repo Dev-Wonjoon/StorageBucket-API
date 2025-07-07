@@ -6,10 +6,10 @@ from app.models.urls import Url
 from app.repositories.media_repository import MediaRepository
 from core.exception import DuplicateUrlError
 from core.unit_of_work import unit_of_work
-from downloader.base import DownloadResult
-from downloader.ig_downloader import InstagramDownloader
+from downloader.models import DownloadResult
+from downloader.plugins.instagram import InstagramDownloader
 
-from .base_media_service import AbstractMediaService
+from .abstract_media_service import AbstractMediaService
 
 
 class InstagramService(AbstractMediaService):

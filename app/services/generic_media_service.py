@@ -1,11 +1,11 @@
 from sqlmodel.ext.asyncio.session import AsyncSession
-from app.services.base_media_service import AbstractMediaService
-from downloader.base import GenericDownloader
+from app.services.abstract_media_service import AbstractMediaService
+from downloader.generic import GenericDownloader
 from core.exception import DuplicateUrlError
 from app.models.urls import Url
 from sqlmodel import select
 from core import settings
-from downloader.base import DownloadResult
+from downloader.models import DownloadResult
 
 
 class GenericMediaService(AbstractMediaService):
@@ -17,7 +17,7 @@ class GenericMediaService(AbstractMediaService):
         self.downloader = GenericDownloader(
             platform=self.PLATFORM_NAME,
             root_dir=settings.download_dir,
-            extractor=None,
+            extractor=self.PLATFORM_NAME,
         )
         
     async def _get_or_create_url(self, url: str):
