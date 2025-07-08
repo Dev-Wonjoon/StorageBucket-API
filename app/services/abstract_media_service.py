@@ -68,8 +68,9 @@ class AbstractMediaService(ABC):
         if self._platform_id is not None:
             return self._platform_id
         
-        stmt = select(Platform.id).where(Platform.name == self.PLATFORM_NAME)
-        platform: Platform | None = (await self.session.exec(stmt)).first()
+        stmt = select(Platform).where(Platform.name == self.PLATFORM_NAME)
+        result = await self.session.exec(stmt)
+        platform: Platform | None = result.first()
         
         if platform is None:
             platform = Platform(name=self.PLATFORM_NAME)
@@ -77,8 +78,4 @@ class AbstractMediaService(ABC):
             await self.session.flush()
         
         self._platform_id = platform.id
-        return platform.id
-        
-            
-    
-    
+        return self._platform_id

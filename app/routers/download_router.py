@@ -7,7 +7,6 @@ import uuid
 
 from app.models.urls import Url
 from app.services.instagram_service import InstagramService
-from app.services.soop_service import SoopService
 from app.services.youtube_services import YoutubeService
 from core.database import get_session
 from core.tasks import schedule_download
@@ -16,8 +15,8 @@ from utils.domain_extractor import DomainExtractor
 router = APIRouter(prefix="/api/download", tags=["download"])
 
 URL_SERVICE_MAP = {
-    r"(?:^|\.)(?:instagram|instagr)\.(?:com|am)$": InstagramService,
-    r"(?:^|\.)(?:youtube|youtu)(?:\.(?:com|be))?$": YoutubeService,
+    r"^(?:instagram|instagr)(?:\.(?:com|am))?$": InstagramService,
+    r"^(?:youtube|youtu)(?:\.(?:com|be))?$"   : YoutubeService,
 }
 
 
@@ -38,6 +37,7 @@ async def download_url(
     
     for pattern, service_cls in URL_SERVICE_MAP.items():
         if re.search(pattern, str(domain)):
+            print(domain)
             exists = await session.scalar(select(Url).where(Url.url == request.url))
             if exists:
                 raise HTTPException(
