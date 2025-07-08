@@ -80,9 +80,11 @@ class InstagramDownloader(Downloader):
         
         saved_paths = [p for p in expect_paths if p.exists()]
         saved_paths = asyncio.run(self._convert_to_webp(saved_paths))
-        files = [FileInfo(p.name, p) for p in saved_paths] or self._collect_files(dest)
+        files = [FileInfo(filename=p.name, filepath=p) for p in saved_paths] or self._collect_files(dest)
         
-        caption = post.caption or "caption_empty"
+        raw_caption = post.caption
+        _caption = raw_caption.replace("\r\n", " ").replace("\n", " ")
+        caption = re.sub(r"\s+", " ", _caption).strip() or "caption_empty"
         metadata = {
             "caption": caption,
             "owner_id": owner_id,
@@ -108,7 +110,7 @@ class InstagramDownloader(Downloader):
         
         files = self._collect_files(dest)
         files = asyncio.run(self._convert_to_webp([f.filepath for f in files]))
-        files = [FileInfo(p.name, p) for p in files]
+        files = [FileInfo(filename=p.name, filepath=p) for p in files]
         metadata = {
             'owner_id': owner_id,
             'owner_name': profile.username
@@ -133,7 +135,7 @@ class InstagramDownloader(Downloader):
                     loader.download_storyitem(item, target="")
                     saved_files = [p for p in except_paths if p.exists()]
                     saved_files = asyncio.run(self._convert_to_webp(saved_files))
-                    files = [FileInfo(p.name, p) for p in saved_files] or self._collect_files(dest)
+                    files = [FileInfo(filename=p.name, filepath=p) for p in saved_files] or self._collect_files(dest)
                     break
             if files:
                 break

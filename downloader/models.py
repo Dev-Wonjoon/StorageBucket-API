@@ -10,7 +10,7 @@ class FileInfo(BaseModel):
     filepath: Path
     filesize: int | None = None
     
-    @field_validator("filesize", mode="before", check_fields=False)
+    @field_validator("filesize", mode="after")
     @classmethod
     def auto_size(cls, v, values):
         if v is not None:
