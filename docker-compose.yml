@@ -3,28 +3,33 @@ services:
   db:
     image: postgres:15
     volumes:
-      - /mnt/myssd/storagebucket/postgres_data:/var/lib/postgresql/data
+      - ${DATASOURCE_DIR}:/var/lib/postgresql/data
     environment:
-      - POSTGRES_USER=${PG_USERNAME}
-      - POSTGRES_PASSWORD=${PG_PASSWORD}
-      - POSTGRES_DB=${PG_NAME}
+      - POSTGRES_USER=${PG_USERNAME:-postgres}
+      - POSTGRES_PASSWORD=${PG_PASSWORD:-postgres}
+      - POSTGRES_DB=${PG_NAME:-postgres}
       - MEILI_MASTER_KEY=${MEILI_MASTER_KEY}
     ports:
-      - "${PG_PORT}:5432"
+      - "${PG_PORT:-5432}:5432"
     restart: always
   web:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      args:
+        GENERATE_SELF_SIGNED: "${GENERATE_SELF_SIGNED:-false}"
     ports:
-      - "${WEB_PORT}:8000"
+      - "${WEB_PORT:-8000}:8000"
+      - "${WEB_SSL_PORT:-443}:443"
     volumes:
       - ./:/app:delegated
     environment:
-      - DATABASE_TYPE=sqlite
-      - DB_NAME=${PG_NAME}
-      - DB_USERNAME=${PG_USERNAME}
-      - DB_PASSWORD=${PG_PASSWORD}
-      - DB_HOST=${PG_HOST}
-      - DB_PORT=${PG_PORT}
+      - DATABASE_TYPE=${DATABASE_TYPE:-sqlite}
+      - DB_NAME=${PG_NAME:-postgres}
+      - DB_USERNAME=${PG_USERNAME:-postgres}
+      - DB_PASSWORD=${PG_PASSWORD:-postgres}
+      - DB_HOST=${PG_HOST:-db}
+      - DB_PORT=${PG_PORT:-5432}
     depends_on:
       - db
 
